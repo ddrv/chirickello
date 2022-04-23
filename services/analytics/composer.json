@@ -1,0 +1,24 @@
+{
+  "name": "chirickello/analytics",
+  "authors": [
+    {
+      "name": "Ivan Dudarev",
+      "email": "ivan@ddrv.ru",
+      "homepage": "https://ddrv.ru"
+    }
+  ],
+  "require": {
+    "php": ">=7.4",
+    "slim/slim": "^4.10",
+    "nyholm/psr7": "^1.5",
+    "ddrv/env": "^1.0",
+    "ddrv/container": "^2.0",
+    "ddrv/http-client": "^2.0",
+    "ddrv/server-request-wizard": "^2.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Chirickello\\Analytics\\": "src/"
+    }
+  }
+}

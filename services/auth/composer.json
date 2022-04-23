@@ -14,7 +14,8 @@
     "ddrv/env": "^1.0",
     "ddrv/container": "^2.0",
     "ddrv/http-client": "^2.0",
-    "ddrv/server-request-wizard": "^2.0"
+    "ddrv/server-request-wizard": "^2.0",
+    "twig/twig": "^3.3"
   },
   "autoload": {
     "psr-4": {

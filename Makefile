@@ -6,3 +6,6 @@ stop:
 
 api-sh:
 	docker-compose exec api sh
+
+auth-sh:
+	docker-compose exec auth sh

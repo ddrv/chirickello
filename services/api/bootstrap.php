@@ -6,9 +6,11 @@ use App\Handler\Error\ServerErrorHandler;
 use App\Handler\Error\UnauthorizedHandler;
 use Ddrv\Container\Container;
 use Ddrv\Env\Env;
+use Ddrv\Http\Client\Client;
 use Ddrv\ServerRequestWizard\ServerRequestWizard;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Container\ContainerInterface;
+use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
@@ -54,6 +56,16 @@ $container->bind(ServerRequestFactoryInterface::class, Psr17Factory::class);
 $container->bind(StreamFactoryInterface::class, Psr17Factory::class);
 $container->bind(UploadedFileFactoryInterface::class, Psr17Factory::class);
 $container->bind(UriFactoryInterface::class, Psr17Factory::class);
+
+// HTTP CLIENT
+
+$container->service(Client::class, function (ContainerInterface $container) {
+    return new Client(
+        $container->get(ResponseFactoryInterface::class),
+        5
+    );
+});
+$container->bind(ClientInterface::class, Client::class);
 
 // SERVER REQUEST WIZARD
 

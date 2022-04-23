@@ -70,16 +70,16 @@
         },
         {
             "name": "ddrv/env",
-            "version": "v1.0.3",
+            "version": "v1.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ddrv/php-env.git",
-                "reference": "58e088fad59c28ac3b6012603c92e68ed5e4221c"
+                "reference": "08867ae3325009d0b54d9d6f937a19fb8b4ab1e9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ddrv/php-env/zipball/58e088fad59c28ac3b6012603c92e68ed5e4221c",
-                "reference": "58e088fad59c28ac3b6012603c92e68ed5e4221c",
+                "url": "https://api.github.com/repos/ddrv/php-env/zipball/08867ae3325009d0b54d9d6f937a19fb8b4ab1e9",
+                "reference": "08867ae3325009d0b54d9d6f937a19fb8b4ab1e9",
                 "shasum": ""
             },
             "require": {
@@ -109,7 +109,7 @@
             ],
             "support": {
                 "issues": "https://github.com/ddrv/php-env/issues",
-                "source": "https://github.com/ddrv/php-env/tree/v1.0.3"
+                "source": "https://github.com/ddrv/php-env/tree/v1.0.5"
             },
             "funding": [
                 {
@@ -117,7 +117,7 @@
                     "type": "other"
                 }
             ],
-            "time": "2022-03-25T22:30:40+00:00"
+            "time": "2022-04-24T16:30:50+00:00"
         },
         {
             "name": "ddrv/http-client",

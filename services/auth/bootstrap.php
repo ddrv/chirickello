@@ -1,9 +1,23 @@
 <?php
 
-use App\Handler\Error\ForbiddenHandler;
-use App\Handler\Error\NotFoundHandler;
-use App\Handler\Error\ServerErrorHandler;
-use App\Handler\Error\UnauthorizedHandler;
+use Chirickello\Auth\Handler\Api\V1\MeEndpoint;
+use Chirickello\Auth\Handler\Auth\AuthForm;
+use Chirickello\Auth\Handler\Auth\AuthHandler;
+use Chirickello\Auth\Handler\OAuth\OAuth2Authorize;
+use Chirickello\Auth\Handler\Logout\LogoutForm;
+use Chirickello\Auth\Handler\Logout\LogoutHandler;
+use Chirickello\Auth\Handler\HomePage;
+use Chirickello\Auth\Handler\OAuth\OAuth2Token;
+use Chirickello\Auth\Middleware\AuthRequiredApiMiddleware;
+use Chirickello\Auth\Middleware\CorsMiddleware;
+use Chirickello\Auth\Middleware\AuthRequiredWebMiddleware;
+use Chirickello\Auth\Middleware\DefineUserMiddleware;
+use Chirickello\Auth\Middleware\SessionMiddleware;
+use Chirickello\Auth\Middleware\TokenMiddleware;
+use Chirickello\Auth\Repo\ClientRepo\ClientEnvRepo;
+use Chirickello\Auth\Repo\ClientRepo\ClientRepo;
+use Chirickello\Auth\Repo\UserRepo\UserEnvRepo;
+use Chirickello\Auth\Repo\UserRepo\UserRepo;
 use Ddrv\Container\Container;
 use Ddrv\Env\Env;
 use Ddrv\ServerRequestWizard\ServerRequestWizard;
@@ -17,9 +31,6 @@ use Psr\Http\Message\UploadedFileFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use Slim\App;
 use Slim\CallableResolver;
-use Slim\Exception\HttpForbiddenException;
-use Slim\Exception\HttpNotFoundException;
-use Slim\Exception\HttpUnauthorizedException;
 use Slim\Handlers\Strategies\RequestHandler;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\InvocationStrategyInterface;
@@ -28,6 +39,9 @@ use Slim\Interfaces\RouteParserInterface;
 use Slim\Middleware\ErrorMiddleware;
 use Slim\Routing\RouteCollector;
 use Slim\Routing\RouteParser;
+use Twig\Environment;
+use Twig\Loader\FilesystemLoader;
+use Twig\Loader\LoaderInterface;
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
 
@@ -62,6 +76,153 @@ $container->service(ServerRequestWizard::class, function (ContainerInterface $co
         $container->get(ServerRequestFactoryInterface::class),
         $container->get(StreamFactoryInterface::class),
         $container->get(UploadedFileFactoryInterface::class)
+    );
+});
+
+// TEMPLATE
+
+$container->service(FilesystemLoader::class, function (ContainerInterface $container) {
+    $directory = $container->get('root') . DIRECTORY_SEPARATOR . 'templates';
+    return new FilesystemLoader([$directory]);
+});
+$container->bind(LoaderInterface::class, FilesystemLoader::class);
+
+$container->service(Environment::class, function (ContainerInterface $container) {
+    $options = [];
+    /** @var Env $env */
+    $env = $container->get(Env::class);
+    $debug = (bool)$env->get('DEBUG');
+    if (!$debug) {
+        $root = $container->get('root');
+        $options['cache'] = implode(DIRECTORY_SEPARATOR, [$root, 'var', 'cache', 'twig']);
+    }
+    return new Environment($container->get(LoaderInterface::class), $options);
+});
+
+// REPO
+
+$container->service(UserEnvRepo::class, function (ContainerInterface $container) {
+    /** @var Env $env */
+    $env = $container->get(Env::class);
+    return new UserEnvRepo(
+        $env->get('ADMINS'),
+        $env->get('MANAGERS'),
+        $env->get('ACCOUNTANTS'),
+        $env->get('DEVELOPERS')
+    );
+});
+$container->bind(UserRepo::class, UserEnvRepo::class);
+
+$container->service(ClientEnvRepo::class, function (ContainerInterface $container) {
+    /** @var Env $env */
+    $env = $container->get(Env::class);
+    return new ClientEnvRepo(
+        $env->get('OAUTH_CLIENT_ID'),
+        $env->get('OAUTH_CLIENT_SECRET'),
+        $env->get('OAUTH_CLIENT_REDIRECT')
+    );
+});
+$container->bind(ClientRepo::class, ClientEnvRepo::class);
+
+// MIDDLEWARE
+
+$container->service(SessionMiddleware::class, function (ContainerInterface $container) {
+    $root = $container->get('root');
+    $dir = $root . DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'sessions';
+    return new SessionMiddleware($dir);
+});
+
+$container->service(DefineUserMiddleware::class, function (ContainerInterface $container) {
+    return new DefineUserMiddleware(
+        $container->get(UserRepo::class)
+    );
+});
+
+$container->service(TokenMiddleware::class, function (ContainerInterface $container) {
+    return new TokenMiddleware(
+        $container->get(UserRepo::class)
+    );
+});
+
+$container->service(CorsMiddleware::class, function (ContainerInterface $container) {
+    return new CorsMiddleware(
+        $container->get(ResponseFactoryInterface::class)
+    );
+});
+
+$container->service(AuthRequiredWebMiddleware::class, function (ContainerInterface $container) {
+    return new AuthRequiredWebMiddleware(
+        $container->get(ResponseFactoryInterface::class),
+        $container->get(RouteParserInterface::class)
+    );
+});
+
+$container->service(AuthRequiredApiMiddleware::class, function (ContainerInterface $container) {
+    return new AuthRequiredApiMiddleware(
+        $container->get(ResponseFactoryInterface::class)
+    );
+});
+
+// HANDLERS
+
+$container->service(HomePage::class, function (ContainerInterface $container) {
+    return new HomePage(
+        $container->get(ResponseFactoryInterface::class),
+        $container->get(RouteParserInterface::class),
+        $container->get(Environment::class)
+    );
+});
+
+$container->service(AuthForm::class, function (ContainerInterface $container) {
+    return new AuthForm(
+        $container->get(ResponseFactoryInterface::class),
+        $container->get(RouteParserInterface::class),
+        $container->get(Environment::class)
+    );
+});
+
+$container->service(AuthHandler::class, function (ContainerInterface $container) {
+    return new AuthHandler(
+        $container->get(ResponseFactoryInterface::class),
+        $container->get(RouteParserInterface::class),
+        $container->get(UserRepo::class)
+    );
+});
+
+$container->service(LogoutForm::class, function (ContainerInterface $container) {
+    return new LogoutForm(
+        $container->get(ResponseFactoryInterface::class),
+        $container->get(RouteParserInterface::class),
+        $container->get(Environment::class)
+    );
+});
+
+$container->service(LogoutHandler::class, function (ContainerInterface $container) {
+    return new LogoutHandler(
+        $container->get(ResponseFactoryInterface::class),
+        $container->get(RouteParserInterface::class)
+    );
+});
+
+$container->service(OAuth2Authorize::class, function (ContainerInterface $container) {
+    return new OAuth2Authorize(
+        $container->get(ResponseFactoryInterface::class),
+        $container->get(RouteParserInterface::class),
+        $container->get(Environment::class),
+        $container->get(ClientRepo::class)
+    );
+});
+
+$container->service(OAuth2Token::class, function (ContainerInterface $container) {
+    return new OAuth2Token(
+        $container->get(ResponseFactoryInterface::class),
+        $container->get(ClientRepo::class)
+    );
+});
+
+$container->service(MeEndpoint::class, function (ContainerInterface $container) {
+    return new MeEndpoint(
+        $container->get(ResponseFactoryInterface::class)
     );
 });
 

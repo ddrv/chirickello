@@ -23,6 +23,10 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" &&
     php -r "unlink('composer-setup.php');" && \
     chmod +x /usr/local/bin/composer
 
+RUN sed -i -e 's/clean_env =/;clean_env =/g' /etc/php7/php-fpm.d/www.conf && echo "clear_env = no" >> /etc/php7/php-fpm.d/www.conf
+RUN sed -i -e 's/variables_order = "GPCS"/variables_order = "EGPCS"/g' /etc/php7/php.ini
+RUN cp /etc/nginx/fastcgi_params /etc/nginx/fastcgi_params_base
+
 EXPOSE 80
 
 COPY docker-entrypoint.sh /

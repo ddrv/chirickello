@@ -1,0 +1,6 @@
+vendor/
+var/cache/
+var/sessions/*
+
+.env
+!var/sessions/.gitkeep

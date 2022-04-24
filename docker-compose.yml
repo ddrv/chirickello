@@ -1,0 +1,73 @@
+version: "3.5"
+
+services:
+  auth:
+    build: docker/php-app
+    tty: true
+    stdin_open: true
+    volumes:
+      - ./services/auth:/var/www/app
+    expose:
+      - "80"
+    ports:
+      - "${LOCAL_AUTH_PORT}:80"
+    environment:
+      - "ADMINS=${ADMINS}"
+      - "MANAGERS=${MANAGERS}"
+      - "ACCOUNTANTS=${ACCOUNTANTS}"
+      - "DEVELOPERS=${DEVELOPERS}"
+      - "OAUTH_CLIENT_ID=${OAUTH_CLIENT_ID}"
+      - "OAUTH_CLIENT_SECRET=${OAUTH_CLIENT_SECRET}"
+      - "OAUTH_CLIENT_REDIRECT=${OAUTH_CLIENT_REDIRECT}"
+  accounting:
+    build: docker/php-app
+    tty: true
+    stdin_open: true
+    volumes:
+      - ./services/accounting:/var/www/app
+    expose:
+      - "80"
+    depends_on:
+      - auth
+  analytics:
+    build: docker/php-app
+    tty: true
+    stdin_open: true
+    volumes:
+      - ./services/analytics:/var/www/app
+    expose:
+      - "80"
+    depends_on:
+      - auth
+  task-tracker:
+    build: docker/php-app
+    tty: true
+    stdin_open: true
+    volumes:
+      - ./services/task-tracker:/var/www/app
+    expose:
+      - "80"
+    depends_on:
+      - auth
+  api:
+    build: docker/php-app
+    tty: true
+    stdin_open: true
+    depends_on:
+      - accounting
+      - analytics
+      - auth
+      - task-tracker
+    volumes:
+      - ./services/api:/var/www/app
+    expose:
+      - "80"
+    ports:
+      - "${LOCAL_API_PORT}:80"
+#  message_bus:
+#    build: docker/message_bus
+
+networks:
+  default:
+    name: chickinet
+    driver: bridge

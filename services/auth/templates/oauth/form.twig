@@ -1,0 +1,22 @@
+{% extends 'layout.twig' %}
+
+{% block content %}
+<h1>Request access</h1>
+<p>{{ login }}, application "{{ client }}" request access: </p>
+{% if scope %}
+    <ul>
+    {% for scope_item in scope %}
+        <li>{{ scope_item }}</li>
+    {% endfor %}
+    </ul>
+{% endif %}
+<form action="{{ action }}" method="post">
+    {% for param, value in oauth %}
+        <input type="hidden" name="{{ param }}" value="{{ value }}">
+    {% endfor %}
+    <div>
+        <button type="submit">Accept</button>
+    </div>
+</form>
+
+{% endblock %}

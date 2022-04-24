@@ -42,6 +42,14 @@ class UserEnvRepo implements UserRepo
         return $this->users[$key];
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function getAll(): array
+    {
+        return array_values($this->users);
+    }
+
     private function registerUser(string $login, string $role): void
     {
         $key = trim(strtolower($login));

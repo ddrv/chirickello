@@ -1,22 +1,32 @@
 {% extends 'layout.twig' %}
 
 {% block content %}
-<h1>Request access</h1>
-<p>{{ login }}, application "{{ client }}" request access: </p>
-{% if scope %}
-    <ul>
-    {% for scope_item in scope %}
-        <li>{{ scope_item }}</li>
-    {% endfor %}
-    </ul>
-{% endif %}
-<form action="{{ action }}" method="post">
-    {% for param, value in oauth %}
-        <input type="hidden" name="{{ param }}" value="{{ value }}">
-    {% endfor %}
-    <div>
-        <button type="submit">Accept</button>
+<div class="auth-form">
+    <h1>Request access</h1>
+    <p>Application "{{ client }}" request access: </p>
+    {% if scope %}
+        <ul>
+        {% for scope_item in scope %}
+            <li>{{ scope_item }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+    <form action="{{ action }}" method="post">
+        {% for param, value in oauth %}
+            <input type="hidden" name="{{ param }}" value="{{ value }}">
+        {% endfor %}
+        <div>
+            <label for="login">Who are you?</label>
+            <select id="login" name="login">
+                {% for user in users %}
+                    <option value="{{ user.login }}">{{ user.login }} ({{ user.roles }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <button type="submit" class="button">Accept</button>
     </div>
-</form>
+    </form>
+</div>
 
 {% endblock %}

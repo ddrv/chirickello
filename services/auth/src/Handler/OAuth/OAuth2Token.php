@@ -59,7 +59,7 @@ class OAuth2Token implements RequestHandlerInterface
         if (count($raw) !== 3) {
             return $this->responseFactory->createResponse(400);
         }
-        $token = base64_encode(implode(':', [$raw[0], $raw[1]]));
+        $token = rtrim(base64_encode(implode(':', [$raw[0], $raw[1]])), '=');
 
         $response = $this->responseFactory->createResponse()
             ->withHeader('Content-Type', ['application/json'])

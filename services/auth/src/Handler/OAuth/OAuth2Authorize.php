@@ -6,7 +6,9 @@ namespace Chirickello\Auth\Handler\OAuth;
 
 use Chirickello\Auth\Entity\Client;
 use Chirickello\Auth\Entity\User;
+use Chirickello\Auth\Exception\UserNotFoundException;
 use Chirickello\Auth\Repo\ClientRepo\ClientRepo;
+use Chirickello\Auth\Repo\UserRepo\UserRepo;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -20,17 +22,20 @@ class OAuth2Authorize implements RequestHandlerInterface
     private RouteParserInterface $router;
     private Environment $render;
     private ClientRepo $clientRepo;
+    private UserRepo $userRepo;
 
     public function __construct(
         ResponseFactoryInterface $responseFactory,
         RouteParserInterface $router,
         Environment $render,
-        ClientRepo $clientRepo
+        ClientRepo $clientRepo,
+        UserRepo $userRepo
     ) {
         $this->responseFactory = $responseFactory;
         $this->router = $router;
         $this->render = $render;
         $this->clientRepo = $clientRepo;
+        $this->userRepo = $userRepo;
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
@@ -55,6 +60,13 @@ class OAuth2Authorize implements RequestHandlerInterface
         [$client, $scope, $redirectUri, $state] = $this->checkOauthParams($query);
         unset($redirectUri, $state);
 
+        $users = [];
+        foreach ($this->userRepo->getAll() as $user) {
+            $users[] = [
+                'login' => $user->getLogin(),
+                'roles' => implode(', ', $user->getRoles()),
+            ];
+        }
         $response = $this->responseFactory->createResponse()
             ->withHeader('Content-Type', ['text/html; charset=utf-8'])
         ;
@@ -63,6 +75,7 @@ class OAuth2Authorize implements RequestHandlerInterface
             $this->render->render('oauth/form.twig', [
                 'login' => $user->getLogin(),
                 'action' => $this->router->urlFor('oauth.handler'),
+                'users' => $users,
                 'oauth' => $query,
                 'client' => $client->getName(),
                 'scope' => empty($scope) ? null : explode(' ', $scope),
@@ -75,14 +88,21 @@ class OAuth2Authorize implements RequestHandlerInterface
     {
         /** @var User $user */
         $user = $request->getAttribute('__user__');
-        $query = $request->getParsedBody();
+        $post = $request->getParsedBody();
+        $login = (string)($post['login'] ?? '');
+        try {
+            $user = $this->userRepo->getByLogin($login);
+        } catch (UserNotFoundException $e) {
+            //todo error
+        }
+
         /**
          * @var Client $client
          * @var string $scope
          * @var string $redirectUri
          * @var string|null $state
          */
-        [$client, $scope, $redirectUri, $state] = $this->checkOauthParams($query);
+        [$client, $scope, $redirectUri, $state] = $this->checkOauthParams($post);
         unset($client);
 
         $token = implode(':', [$user->getLogin(), $scope]);
@@ -94,7 +114,7 @@ class OAuth2Authorize implements RequestHandlerInterface
         }
         $redirectQuery = [];
         parse_str($redirectQueryString, $redirectQuery);
-        $redirectQuery['code'] = base64_encode(uniqid($token . ':', true));
+        $redirectQuery['code'] = rtrim(base64_encode(uniqid($token . ':', true)), '=');
         if (!is_null($state)) {
             $redirectQuery['state'] = $state;
         }

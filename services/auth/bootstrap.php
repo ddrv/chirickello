@@ -1,18 +1,10 @@
 <?php
 
 use Chirickello\Auth\Handler\Api\V1\MeEndpoint;
-use Chirickello\Auth\Handler\Auth\AuthForm;
-use Chirickello\Auth\Handler\Auth\AuthHandler;
 use Chirickello\Auth\Handler\OAuth\OAuth2Authorize;
-use Chirickello\Auth\Handler\Logout\LogoutForm;
-use Chirickello\Auth\Handler\Logout\LogoutHandler;
-use Chirickello\Auth\Handler\HomePage;
 use Chirickello\Auth\Handler\OAuth\OAuth2Token;
 use Chirickello\Auth\Middleware\AuthRequiredApiMiddleware;
 use Chirickello\Auth\Middleware\CorsMiddleware;
-use Chirickello\Auth\Middleware\AuthRequiredWebMiddleware;
-use Chirickello\Auth\Middleware\DefineUserMiddleware;
-use Chirickello\Auth\Middleware\SessionMiddleware;
 use Chirickello\Auth\Middleware\TokenMiddleware;
 use Chirickello\Auth\Repo\ClientRepo\ClientEnvRepo;
 use Chirickello\Auth\Repo\ClientRepo\ClientRepo;
@@ -126,18 +118,6 @@ $container->bind(ClientRepo::class, ClientEnvRepo::class);
 
 // MIDDLEWARE
 
-$container->service(SessionMiddleware::class, function (ContainerInterface $container) {
-    $root = $container->get('root');
-    $dir = $root . DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'sessions';
-    return new SessionMiddleware($dir);
-});
-
-$container->service(DefineUserMiddleware::class, function (ContainerInterface $container) {
-    return new DefineUserMiddleware(
-        $container->get(UserRepo::class)
-    );
-});
-
 $container->service(TokenMiddleware::class, function (ContainerInterface $container) {
     return new TokenMiddleware(
         $container->get(UserRepo::class)
@@ -150,13 +130,6 @@ $container->service(CorsMiddleware::class, function (ContainerInterface $contain
     );
 });
 
-$container->service(AuthRequiredWebMiddleware::class, function (ContainerInterface $container) {
-    return new AuthRequiredWebMiddleware(
-        $container->get(ResponseFactoryInterface::class),
-        $container->get(RouteParserInterface::class)
-    );
-});
-
 $container->service(AuthRequiredApiMiddleware::class, function (ContainerInterface $container) {
     return new AuthRequiredApiMiddleware(
         $container->get(ResponseFactoryInterface::class)
@@ -165,51 +138,13 @@ $container->service(AuthRequiredApiMiddleware::class, function (ContainerInterfa
 
 // HANDLERS
 
-$container->service(HomePage::class, function (ContainerInterface $container) {
-    return new HomePage(
-        $container->get(ResponseFactoryInterface::class),
-        $container->get(RouteParserInterface::class),
-        $container->get(Environment::class)
-    );
-});
-
-$container->service(AuthForm::class, function (ContainerInterface $container) {
-    return new AuthForm(
-        $container->get(ResponseFactoryInterface::class),
-        $container->get(RouteParserInterface::class),
-        $container->get(Environment::class)
-    );
-});
-
-$container->service(AuthHandler::class, function (ContainerInterface $container) {
-    return new AuthHandler(
-        $container->get(ResponseFactoryInterface::class),
-        $container->get(RouteParserInterface::class),
-        $container->get(UserRepo::class)
-    );
-});
-
-$container->service(LogoutForm::class, function (ContainerInterface $container) {
-    return new LogoutForm(
-        $container->get(ResponseFactoryInterface::class),
-        $container->get(RouteParserInterface::class),
-        $container->get(Environment::class)
-    );
-});
-
-$container->service(LogoutHandler::class, function (ContainerInterface $container) {
-    return new LogoutHandler(
-        $container->get(ResponseFactoryInterface::class),
-        $container->get(RouteParserInterface::class)
-    );
-});
-
 $container->service(OAuth2Authorize::class, function (ContainerInterface $container) {
     return new OAuth2Authorize(
         $container->get(ResponseFactoryInterface::class),
         $container->get(RouteParserInterface::class),
         $container->get(Environment::class),
-        $container->get(ClientRepo::class)
+        $container->get(ClientRepo::class),
+        $container->get(UserRepo::class)
     );
 });
 

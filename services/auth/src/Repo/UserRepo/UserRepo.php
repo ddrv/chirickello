@@ -15,4 +15,9 @@ interface UserRepo
      * @throws UserNotFoundException
      */
     public function getByLogin(string $login): User;
+
+    /**
+     * @return User[]
+     */
+    public function getAll(): array;
 }

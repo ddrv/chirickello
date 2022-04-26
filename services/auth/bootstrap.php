@@ -12,7 +12,6 @@ use Chirickello\Auth\Repo\UserRepo\UserEnvRepo;
 use Chirickello\Auth\Repo\UserRepo\UserRepo;
 use Ddrv\Container\Container;
 use Ddrv\Env\Env;
-use Ddrv\ServerRequestWizard\ServerRequestWizard;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\RequestFactoryInterface;
@@ -27,6 +26,7 @@ use Slim\Handlers\Strategies\RequestHandler;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Interfaces\RouteCollectorInterface;
+use Slim\Interfaces\RouteCollectorProxyInterface;
 use Slim\Interfaces\RouteParserInterface;
 use Slim\Middleware\ErrorMiddleware;
 use Slim\Routing\RouteCollector;
@@ -43,10 +43,8 @@ $container->value('root', __DIR__);
 
 // ENV
 
-$container->service(Env::class, function (ContainerInterface $container) {
-    return new Env(
-        $container->get('root') . DIRECTORY_SEPARATOR . '.env'
-    );
+$container->service(Env::class, function () {
+    return new Env('');
 });
 
 // HTTP-FACTORY
@@ -60,16 +58,6 @@ $container->bind(ServerRequestFactoryInterface::class, Psr17Factory::class);
 $container->bind(StreamFactoryInterface::class, Psr17Factory::class);
 $container->bind(UploadedFileFactoryInterface::class, Psr17Factory::class);
 $container->bind(UriFactoryInterface::class, Psr17Factory::class);
-
-// SERVER REQUEST WIZARD
-
-$container->service(ServerRequestWizard::class, function (ContainerInterface $container) {
-    return new ServerRequestWizard(
-        $container->get(ServerRequestFactoryInterface::class),
-        $container->get(StreamFactoryInterface::class),
-        $container->get(UploadedFileFactoryInterface::class)
-    );
-});
 
 // TEMPLATE
 
@@ -171,12 +159,32 @@ $container->service(RouteParser::class, function (ContainerInterface $container)
 $container->bind(RouteParserInterface::class, RouteParser::class);
 
 $container->service(RouteCollector::class, function (ContainerInterface $container) {
-    return new RouteCollector(
+    $router = new RouteCollector(
         $container->get(ResponseFactoryInterface::class),
         $container->get(CallableResolverInterface::class),
         $container,
         $container->get(InvocationStrategyInterface::class)
     );
+    $router->group('', function (RouteCollectorProxyInterface $router) {
+        $router->group('', function (RouteCollectorProxyInterface $router) {
+            $router->get('/oauth/v2/authorize', OAuth2Authorize::class)->setName('oauth.form');
+            $router->post('/oauth/v2/authorize', OAuth2Authorize::class)->setName('oauth.handler');
+        });
+    });
+
+    $router->group('', function (RouteCollectorProxyInterface $router) {
+        $router->options('/oauth/v2/token', OAuth2Token::class);
+        $router->post('/oauth/v2/token', OAuth2Token::class);
+
+        $router->group('/api/v1', function (RouteCollectorProxyInterface $router) {
+            $router->group('', function (RouteCollectorProxyInterface $router) {
+                $router->options('/me', MeEndpoint::class);
+                $router->get('/me', MeEndpoint::class);
+            })->add(AuthRequiredApiMiddleware::class);
+        })->add(TokenMiddleware::class);
+    })->add(CorsMiddleware::class);
+
+    return $router;
 });
 $container->bind(RouteCollectorInterface::class, RouteCollector::class);
 

@@ -1,0 +1,311 @@
+openapi: 3.0.3
+info:
+  title: Chirickello
+  description: description
+  contact:
+    name: Ivan Dudarev
+    email: ivan@ddrv.ru
+    url: https://ddrv.ru
+  license:
+    name: proprietary
+  version: 0.9.0
+servers:
+  - url: /api/v1
+    description: This server
+tags:
+  - name: dashboard
+    description: Dashboard
+paths:
+  /tasks:
+    get:
+      operationId: getAllowedTasks
+      security:
+        - oauth2: [tasks]
+      tags:
+        - dashboard
+      parameters:
+        - $ref: '#/components/parameters/paginator'
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/taskListByPage'
+        401:
+          $ref: '#/components/responses/needAuthorization'
+        403:
+          $ref: '#/components/responses/forbidden'
+    post:
+      operationId: createTask
+      security:
+        - oauth2: [tasks]
+      tags:
+        - dashboard
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/taskInput'
+      responses:
+        201:
+          description: taskCreated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/task'
+          headers:
+            Location:
+              description: URI to created task
+              schema:
+                type: string
+                format: uri
+        401:
+          $ref: '#/components/responses/needAuthorization'
+        403:
+          $ref: '#/components/responses/forbidden'
+        422:
+          $ref: '#/components/responses/inputErrors'
+  /tasks/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      operationId: getTask
+      security:
+        - oauth2: [tasks]
+      tags:
+        - dashboard
+      responses:
+        200:
+          description: task
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/task'
+        401:
+          $ref: '#/components/responses/needAuthorization'
+        403:
+          $ref: '#/components/responses/forbidden'
+        404:
+          $ref: '#/components/responses/notFound'
+    patch:
+      operationId: updateTask
+      security:
+        - oauth2: [tasks]
+      tags:
+        - dashboard
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/taskPatch'
+      responses:
+        200:
+          description: task
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/task'
+        401:
+          $ref: '#/components/responses/needAuthorization'
+        403:
+          $ref: '#/components/responses/forbidden'
+        404:
+          $ref: '#/components/responses/notFound'
+  /processes/tasks_shuffle:
+    post:
+      operationId: shuffleTask
+      security:
+        - oauth2: [tasks]
+      tags:
+        - dashboard
+      responses:
+        201:
+          description: TasksShuffled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/result'
+        401:
+          $ref: '#/components/responses/needAuthorization'
+        403:
+          $ref: '#/components/responses/forbidden'
+  /balance/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      operationId: getTask
+      security:
+        - oauth2: [ tasks ]
+      tags:
+        - dashboard
+      responses:
+        200:
+          description: task
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/task'
+        401:
+          $ref: '#/components/responses/needAuthorization'
+        403:
+          $ref: '#/components/responses/forbidden'
+        404:
+          $ref: '#/components/responses/notFound'
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: http://localhost:8089/oauth/v2/authorize
+          tokenUrl: http://localhost:8089/oauth/v2/token
+          scopes:
+            tasks: Manage tasks
+            analytics: View Analytics
+  parameters:
+    paginator:
+      in: query
+      name: paginator
+      description: pagination
+      schema:
+        type: object
+        properties:
+          pageNum:
+            type: integer
+            minimum: 1
+            default: 1
+          perPage:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+  responses:
+    needAuthorization:
+      description: need authorization
+    forbidden:
+      description: forbidden
+    notFound:
+      description: not found
+    inputErrors:
+      description: form errors
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties:
+              type: array
+              items:
+                type: string
+                maxLength: 1
+                description: Message error
+                example: field required
+              uniqueItems: true
+            minProperties: 1
+
+
+  schemas:
+    login:
+      type: string
+      pattern: ^[a-z][a-z0-9\-\.]{3,32}$
+      example: parrot-1
+    taskId:
+      type: string
+      format: uuid
+    taskDescription:
+      type: string
+      minLength: 1
+      maxLength: 1000
+      example: Выклевать клавишу R
+    taskInput:
+      type: object
+      required: [description]
+      properties:
+        description:
+          $ref: '#/components/schemas/taskDescription'
+      additionalProperties: false
+    taskPatchDescription:
+      type: object
+      required: [description]
+      properties:
+        description:
+          $ref: '#/components/schemas/taskDescription'
+      additionalProperties: false
+    taskPatch:
+      type: object
+      required: [ description ]
+      properties:
+        isCompleted:
+          type: boolean
+          enum: [ true ]
+      additionalProperties: false
+    task:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/taskId'
+        description:
+          $ref: '#/components/schemas/taskDescription'
+        assigned:
+          $ref: '#/components/schemas/login'
+        isCompleted:
+          type: boolean
+    pager:
+      type: object
+      required: [pagesCount]
+      properties:
+        pagesCount:
+          type: integer
+          minimum: 0
+    taskList:
+      type: object
+      required: [tasks]
+      properties:
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/task'
+    taskListByPage:
+      allOf:
+        - "$ref": '#/components/schemas/taskList'
+        - "$ref": '#/components/schemas/pager'
+    financeOperation:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [payment, write-off]
+        amount:
+          type: number
+          minimum: 0
+          exclusiveMinimum: true
+        comment:
+          type: string
+          minLength: 1
+        time:
+          type: string
+          format: date-time
+    auditLog:
+      type: object
+      required: [properties]
+      properties:
+        operations:
+          type: array
+          items:
+            $ref: '#/components/schemas/financeOperation'
+    result:
+      type: object
+      required: [success]
+      properties:
+        success:
+          type: boolean

@@ -1,4 +1,5 @@
 build:
+	if [ ! -f .env ]; then cp .env.example .env; fi
 	docker-compose build
 
 start:

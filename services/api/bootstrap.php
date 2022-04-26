@@ -1,13 +1,8 @@
 <?php
 
-use App\Handler\Error\ForbiddenHandler;
-use App\Handler\Error\NotFoundHandler;
-use App\Handler\Error\ServerErrorHandler;
-use App\Handler\Error\UnauthorizedHandler;
 use Ddrv\Container\Container;
 use Ddrv\Env\Env;
 use Ddrv\Http\Client\Client;
-use Ddrv\ServerRequestWizard\ServerRequestWizard;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Client\ClientInterface;
@@ -19,9 +14,6 @@ use Psr\Http\Message\UploadedFileFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use Slim\App;
 use Slim\CallableResolver;
-use Slim\Exception\HttpForbiddenException;
-use Slim\Exception\HttpNotFoundException;
-use Slim\Exception\HttpUnauthorizedException;
 use Slim\Handlers\Strategies\RequestHandler;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\InvocationStrategyInterface;
@@ -39,10 +31,8 @@ $container->value('root', __DIR__);
 
 // ENV
 
-$container->service(Env::class, function (ContainerInterface $container) {
-    return new Env(
-        $container->get('root') . DIRECTORY_SEPARATOR . '.env'
-    );
+$container->service(Env::class, function () {
+    return new Env('');
 });
 
 // HTTP-FACTORY
@@ -66,16 +56,6 @@ $container->service(Client::class, function (ContainerInterface $container) {
     );
 });
 $container->bind(ClientInterface::class, Client::class);
-
-// SERVER REQUEST WIZARD
-
-$container->service(ServerRequestWizard::class, function (ContainerInterface $container) {
-    return new ServerRequestWizard(
-        $container->get(ServerRequestFactoryInterface::class),
-        $container->get(StreamFactoryInterface::class),
-        $container->get(UploadedFileFactoryInterface::class)
-    );
-});
 
 // SLIM
 

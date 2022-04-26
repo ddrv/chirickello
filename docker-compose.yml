@@ -2,7 +2,7 @@ version: "3.5"
 
 services:
   auth:
-    build: docker/php-app
+    build: docker/roadrunner
     tty: true
     stdin_open: true
     volumes:
@@ -12,6 +12,7 @@ services:
     ports:
       - "${LOCAL_AUTH_PORT}:80"
     environment:
+      - "DEBUG=${DEBUG}"
       - "ADMINS=${ADMINS}"
       - "MANAGERS=${MANAGERS}"
       - "ACCOUNTANTS=${ACCOUNTANTS}"
@@ -20,7 +21,7 @@ services:
       - "OAUTH_CLIENT_SECRET=${OAUTH_CLIENT_SECRET}"
       - "OAUTH_CLIENT_REDIRECT=${OAUTH_CLIENT_REDIRECT}"
   accounting:
-    build: docker/php-app
+    build: docker/roadrunner
     tty: true
     stdin_open: true
     volumes:
@@ -30,27 +31,31 @@ services:
     depends_on:
       - auth
   analytics:
-    build: docker/php-app
+    build: docker/roadrunner
     tty: true
     stdin_open: true
     volumes:
       - ./services/analytics:/var/www/app
     expose:
       - "80"
+    environment:
+      - "DEBUG=${DEBUG}"
     depends_on:
       - auth
   task-tracker:
-    build: docker/php-app
+    build: docker/roadrunner
     tty: true
     stdin_open: true
     volumes:
       - ./services/task-tracker:/var/www/app
     expose:
       - "80"
+    environment:
+      - "DEBUG=${DEBUG}"
     depends_on:
       - auth
   api:
-    build: docker/php-app
+    build: docker/roadrunner
     tty: true
     stdin_open: true
     depends_on:
@@ -62,6 +67,8 @@ services:
       - ./services/api:/var/www/app
     expose:
       - "80"
+    environment:
+      - "DEBUG=${DEBUG}"
     ports:
       - "${LOCAL_API_PORT}:80"
 #  message_bus:

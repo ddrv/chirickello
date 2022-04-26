@@ -55,16 +55,6 @@ $container->bind(StreamFactoryInterface::class, Psr17Factory::class);
 $container->bind(UploadedFileFactoryInterface::class, Psr17Factory::class);
 $container->bind(UriFactoryInterface::class, Psr17Factory::class);
 
-// SERVER REQUEST WIZARD
-
-$container->service(ServerRequestWizard::class, function (ContainerInterface $container) {
-    return new ServerRequestWizard(
-        $container->get(ServerRequestFactoryInterface::class),
-        $container->get(StreamFactoryInterface::class),
-        $container->get(UploadedFileFactoryInterface::class)
-    );
-});
-
 // SLIM
 
 $container->service(RouteParser::class, function (ContainerInterface $container) {

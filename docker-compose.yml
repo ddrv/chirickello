@@ -20,6 +20,8 @@ services:
       - "OAUTH_CLIENT_ID=${OAUTH_CLIENT_ID}"
       - "OAUTH_CLIENT_SECRET=${OAUTH_CLIENT_SECRET}"
       - "OAUTH_CLIENT_REDIRECT=${OAUTH_CLIENT_REDIRECT}"
+    depends_on:
+      - message-bus
   accounting:
     build: docker/roadrunner
     tty: true
@@ -30,6 +32,7 @@ services:
       - "80"
     depends_on:
       - auth
+      - message-bus
   analytics:
     build: docker/roadrunner
     tty: true
@@ -42,6 +45,7 @@ services:
       - "DEBUG=${DEBUG}"
     depends_on:
       - auth
+      - message-bus
   task-tracker:
     build: docker/roadrunner
     tty: true
@@ -54,6 +58,7 @@ services:
       - "DEBUG=${DEBUG}"
     depends_on:
       - auth
+      - message-bus
   api:
     build: docker/roadrunner
     tty: true
@@ -71,9 +76,11 @@ services:
       - "DEBUG=${DEBUG}"
     ports:
       - "${LOCAL_API_PORT}:80"
-#  message_bus:
-#    build: docker/message_bus
-
+  message-bus:
+    image: blacktop/kafka:3.1
+    ports:
+      - "${ZOOKEEPER_PORT}:2181"
+      - "${KAFKA_PORT}:9092"
 networks:
   default:
     name: chickinet

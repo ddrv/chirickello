@@ -21,7 +21,7 @@ services:
       - "OAUTH_CLIENT_SECRET=${OAUTH_CLIENT_SECRET}"
       - "OAUTH_CLIENT_REDIRECT=${OAUTH_CLIENT_REDIRECT}"
     depends_on:
-      - message-bus
+      - kafka
   accounting:
     build: docker/roadrunner
     tty: true
@@ -32,7 +32,7 @@ services:
       - "80"
     depends_on:
       - auth
-      - message-bus
+      - kafka
   analytics:
     build: docker/roadrunner
     tty: true
@@ -45,7 +45,7 @@ services:
       - "DEBUG=${DEBUG}"
     depends_on:
       - auth
-      - message-bus
+      - kafka
   task-tracker:
     build: docker/roadrunner
     tty: true
@@ -58,7 +58,7 @@ services:
       - "DEBUG=${DEBUG}"
     depends_on:
       - auth
-      - message-bus
+      - kafka
   api:
     build: docker/roadrunner
     tty: true
@@ -76,11 +76,31 @@ services:
       - "DEBUG=${DEBUG}"
     ports:
       - "${LOCAL_API_PORT}:80"
-  message-bus:
+  zookeeper:
     image: blacktop/kafka:3.1
+    command: zookeeper-server-start.sh config/zookeeper.properties
+    expose:
+      - "2181"
+  kafka:
+    image: blacktop/kafka:3.1
+    depends_on:
+      - zookeeper
+    expose:
+      - "9092"
+    entrypoint: /wait-for-it.sh zookeeper:2181 -s --timeout=5 -- /kafka-entrypoint.sh
+    command: kafka-server-start.sh config/server.properties
+    environment:
+      - KAFKA_ADVERTISED_HOST_NAME=localhost
+      - KAFKA_CREATE_TOPICS=docker:1:1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_HEAP_OPTS=-Xmx2G -Xms2G
+  mailhog:
+    build: docker/mailhog
+    expose:
+      - "8025"
+      - "1025"
     ports:
-      - "${ZOOKEEPER_PORT}:2181"
-      - "${KAFKA_PORT}:9092"
+      - "${MAILHOG_PORT}:8025"
 networks:
   default:
     name: chickinet

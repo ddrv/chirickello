@@ -3,15 +3,18 @@ FROM alpine:3.15
 WORKDIR /var/www/app
 VOLUME /var/www/app
 
-# install php
+# install supervisor and php
 RUN apk update && \
-    apk add php7 \
+    apk add --no-cache \
+      supervisor \
+      php7 \
       php7-mbstring \
       php7-phar \
       php7-json \
       php7-openssl \
       php7-curl \
-      php7-sockets
+      php7-sockets \
+      php7-rdkafka
 
 # install composer
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
@@ -29,6 +32,8 @@ RUN mkdir /tmp/rr -p && \
     cd /var/www/app && \
     rm -rf /tmp/rr
 
+# create dir for supervisor logs
+RUN mkdir /var/log/supervisor -p
 EXPOSE 80
 
 COPY docker-entrypoint.sh /

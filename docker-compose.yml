@@ -1,6 +1,39 @@
 version: "3.5"
 
 services:
+  mailhog:
+    build: docker/mailhog
+    expose:
+      - "8025"
+      - "1025"
+    ports:
+      - "${MAILHOG_PORT}:8025"
+  satis:
+    build: docker/satis
+    expose:
+      - "80"
+    ports:
+      - "8000:80"
+    volumes:
+      - ./services/satis/packages:/opt/satis/packages
+  zookeeper:
+    image: blacktop/kafka:3.1
+    command: zookeeper-server-start.sh config/zookeeper.properties
+    expose:
+      - "2181"
+  kafka:
+    image: blacktop/kafka:3.1
+    depends_on:
+      - zookeeper
+    expose:
+      - "9092"
+    entrypoint: /wait-for-it.sh zookeeper:2181 -s --timeout=5 -- /kafka-entrypoint.sh
+    command: kafka-server-start.sh config/server.properties
+    environment:
+      - KAFKA_ADVERTISED_HOST_NAME=localhost
+      - KAFKA_CREATE_TOPICS=docker:1:1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_HEAP_OPTS=-Xmx2G -Xms2G
   auth:
     build: docker/roadrunner
     tty: true
@@ -21,6 +54,7 @@ services:
       - "OAUTH_CLIENT_SECRET=${OAUTH_CLIENT_SECRET}"
       - "OAUTH_CLIENT_REDIRECT=${OAUTH_CLIENT_REDIRECT}"
     depends_on:
+      - satis
       - kafka
   accounting:
     build: docker/roadrunner
@@ -76,31 +110,6 @@ services:
       - "DEBUG=${DEBUG}"
     ports:
       - "${LOCAL_API_PORT}:80"
-  zookeeper:
-    image: blacktop/kafka:3.1
-    command: zookeeper-server-start.sh config/zookeeper.properties
-    expose:
-      - "2181"
-  kafka:
-    image: blacktop/kafka:3.1
-    depends_on:
-      - zookeeper
-    expose:
-      - "9092"
-    entrypoint: /wait-for-it.sh zookeeper:2181 -s --timeout=5 -- /kafka-entrypoint.sh
-    command: kafka-server-start.sh config/server.properties
-    environment:
-      - KAFKA_ADVERTISED_HOST_NAME=localhost
-      - KAFKA_CREATE_TOPICS=docker:1:1
-      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-      - KAFKA_HEAP_OPTS=-Xmx2G -Xms2G
-  mailhog:
-    build: docker/mailhog
-    expose:
-      - "8025"
-      - "1025"
-    ports:
-      - "${MAILHOG_PORT}:8025"
 networks:
   default:
     name: chickinet

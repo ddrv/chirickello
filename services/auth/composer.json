@@ -7,6 +7,15 @@
       "homepage": "https://ddrv.ru"
     }
   ],
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "http://satis"
+    }
+  ],
+  "config": {
+    "secure-http": false
+  },
   "require": {
     "php": ">=7.4",
     "slim/slim": "^4.10",
@@ -16,7 +25,8 @@
     "ddrv/http-client": "^2.0",
     "twig/twig": "^3.3",
     "spiral/roadrunner-http": "^2.1",
-    "spiral/roadrunner-worker": "^2.2"
+    "spiral/roadrunner-worker": "^2.2",
+    "uberpopug/event-user-created": "^1.0"
   },
   "autoload": {
     "psr-4": {

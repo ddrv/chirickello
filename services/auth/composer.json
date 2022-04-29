@@ -25,8 +25,7 @@
     "ddrv/http-client": "^2.0",
     "twig/twig": "^3.3",
     "spiral/roadrunner-http": "^2.1",
-    "spiral/roadrunner-worker": "^2.2",
-    "uberpopug/event-user-created": "^1.0"
+    "spiral/roadrunner-worker": "^2.2"
   },
   "autoload": {
     "psr-4": {

@@ -1,7 +1,6 @@
 FROM alpine:3.15
 
 VOLUME /opt/app
-VOLUME /usr/local/lib/php/uberpopug
 WORKDIR /opt/app
 
 # install supervisor and php

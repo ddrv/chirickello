@@ -1,7 +1,7 @@
 <?php
 
 $config = [
-    'name' => 'uberpopug/packages',
+    'name' => 'chirickello/packages',
     'homepage' => 'http://satis',
     'repositories' => [],
     'require-all' => true,
@@ -16,7 +16,6 @@ $config = [
 $files = glob('/opt/satis/packages/*/*/composer.json');
 foreach ($files as $file) {
     $url = substr($file, 0, -14);
-    $package = substr($url, 20);
     $config['repositories'][] = [
         'type' => 'path',
         'url' => $url,

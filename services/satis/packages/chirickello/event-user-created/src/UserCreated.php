@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace UberPopug\Event;
+namespace Chirickello\Package\Event;
 
 class UserCreated
 {

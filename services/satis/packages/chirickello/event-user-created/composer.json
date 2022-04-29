@@ -1,0 +1,13 @@
+{
+  "name": "chirickello/event-user-created",
+  "type": "library",
+  "version": "1.0.0",
+  "require": {
+    "php": ">=7.4"
+  },
+  "autoload": {
+    "psr-4": {
+      "Chirickello\\Package\\Event\\": "src/"
+    }
+  }
+}

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4b65d40ada2573427bef0414e592eed8",
+    "content-hash": "14606667f150ef7e8801d3fa78065881",
     "packages": [
         {
             "name": "ddrv/container",
@@ -1377,6 +1377,24 @@
                 }
             ],
             "time": "2022-04-06T06:47:41+00:00"
+        },
+        {
+            "name": "uberpopug/event-user-created",
+            "version": "1.0.0",
+            "dist": {
+                "type": "tar",
+                "url": "http://satis/dist/uberpopug/event-user-created/uberpopug-event-user-created-9d4e4d028e681fe1dd44f2e9c403424681bf5004-path.tar",
+                "shasum": "a783fae97e58896405e77e7ce23d8fb13d0b853f"
+            },
+            "require": {
+                "php": ">=7.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "UberPopug\\Event\\": "src/"
+                }
+            }
         }
     ],
     "packages-dev": [],

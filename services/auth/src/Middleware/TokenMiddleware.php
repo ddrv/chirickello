@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Chirickello\Auth\Middleware;
 
 use Chirickello\Auth\Exception\UserNotFoundException;
-use Chirickello\Auth\Repo\UserRepo\UserRepo;
+use Chirickello\Auth\Service\UserService\UserService;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -13,11 +13,11 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class TokenMiddleware implements MiddlewareInterface
 {
-    private UserRepo $userRepo;
+    private UserService $userService;
 
-    public function __construct(UserRepo $userRepo)
+    public function __construct(UserService $userService)
     {
-        $this->userRepo = $userRepo;
+        $this->userService = $userService;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
@@ -33,13 +33,13 @@ class TokenMiddleware implements MiddlewareInterface
             return $handler->handle($request);
         }
 
-        [$login, $scope] = $raw;
-        if (empty($login)) {
+        [$id, $scope] = $raw;
+        if (empty($id)) {
             return $handler->handle($request);
         }
 
         try {
-            $user = $this->userRepo->getByLogin($login);
+            $user = $this->userService->getById($id);
         } catch (UserNotFoundException $exception) {
             return $handler->handle($request);
         }

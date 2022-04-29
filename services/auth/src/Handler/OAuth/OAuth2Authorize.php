@@ -8,7 +8,7 @@ use Chirickello\Auth\Entity\Client;
 use Chirickello\Auth\Entity\User;
 use Chirickello\Auth\Exception\UserNotFoundException;
 use Chirickello\Auth\Repo\ClientRepo\ClientRepo;
-use Chirickello\Auth\Repo\UserRepo\UserRepo;
+use Chirickello\Auth\Service\UserService\UserService;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -22,20 +22,20 @@ class OAuth2Authorize implements RequestHandlerInterface
     private RouteParserInterface $router;
     private Environment $render;
     private ClientRepo $clientRepo;
-    private UserRepo $userRepo;
+    private UserService $userService;
 
     public function __construct(
         ResponseFactoryInterface $responseFactory,
         RouteParserInterface $router,
         Environment $render,
         ClientRepo $clientRepo,
-        UserRepo $userRepo
+        UserService $userService
     ) {
         $this->responseFactory = $responseFactory;
         $this->router = $router;
         $this->render = $render;
         $this->clientRepo = $clientRepo;
-        $this->userRepo = $userRepo;
+        $this->userService = $userService;
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
@@ -61,8 +61,9 @@ class OAuth2Authorize implements RequestHandlerInterface
         unset($redirectUri, $state);
 
         $users = [];
-        foreach ($this->userRepo->getAll() as $user) {
+        foreach ($this->userService->getAll() as $user) {
             $users[] = [
+                'id' => $user->getId(),
                 'login' => $user->getLogin(),
                 'roles' => implode(', ', $user->getRoles()),
             ];
@@ -89,9 +90,9 @@ class OAuth2Authorize implements RequestHandlerInterface
         /** @var User $user */
         $user = $request->getAttribute('__user__');
         $post = $request->getParsedBody();
-        $login = (string)($post['login'] ?? '');
+        $id = (string)($post['user_id'] ?? '');
         try {
-            $user = $this->userRepo->getByLogin($login);
+            $user = $this->userService->getById($id);
         } catch (UserNotFoundException $e) {
             //todo error
         }
@@ -105,7 +106,7 @@ class OAuth2Authorize implements RequestHandlerInterface
         [$client, $scope, $redirectUri, $state] = $this->checkOauthParams($post);
         unset($client);
 
-        $token = implode(':', [$user->getLogin(), $scope]);
+        $token = implode(':', [$user->getId(), $scope]);
 
         $redirectUriString = $redirectUri;
         $redirectQueryString = '';

@@ -16,10 +16,10 @@
             <input type="hidden" name="{{ param }}" value="{{ value }}">
         {% endfor %}
         <div>
-            <label for="login">Who are you?</label>
-            <select id="login" name="login">
+            <label for="user_id">Who are you?</label>
+            <select id="user_id" name="user_id">
                 {% for user in users %}
-                    <option value="{{ user.login }}">{{ user.login }} ({{ user.roles }})</option>
+                    <option value="{{ user.id }}">{{ user.login }} ({{ user.roles }})</option>
                 {% endfor %}
             </select>
         </div>

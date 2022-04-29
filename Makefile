@@ -8,6 +8,12 @@ start:
 stop:
 	docker-compose stop
 
+create-user:
+	docker-compose exec auth sh -c "php /opt/app/bin/create-user.php"
+
+create-random-users:
+	docker-compose exec auth sh -c "php /opt/app/bin/create-random-users.php"
+
 api-sh:
 	docker-compose exec api sh
 

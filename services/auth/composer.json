@@ -18,6 +18,8 @@
   },
   "require": {
     "php": ">=7.4",
+    "ext-pdo": "*",
+    "ext-pdo_sqlite": "*",
     "slim/slim": "^4.10",
     "nyholm/psr7": "^1.5",
     "ddrv/env": "^1.0",

@@ -30,12 +30,18 @@ if [ -f ./rr-worker.php ]; then
   fi
 
   echo "pool:" >> ./.rr.yaml
+  echo "  num_workers: 32" >> ./.rr.yaml
+  echo "  max_jobs: 1000" >> ./.rr.yaml
   if [ ${DEBUG} ]; then
-    echo "  num_workers: 1" >> ./.rr.yaml
-    echo "  max_jobs: 1" >> ./.rr.yaml
-  else
-    echo "  num_workers: 32" >> ./.rr.yaml
-    echo "  max_jobs: 1000" >> ./.rr.yaml
+    echo "reload:" >> ./.rr.yaml
+    echo "  interval: 1s" >> ./.rr.yaml
+    echo "  patterns: [ \".php\" ]" >> ./.rr.yaml
+    echo "  services:" >> ./.rr.yaml
+    echo "    http:" >> ./.rr.yaml
+    echo "      recursive: true" >> ./.rr.yaml
+    echo "      ignore: [ \"vendor\" ]" >> ./.rr.yaml
+    echo "      patterns: [ \".php\" ]" >> ./.rr.yaml
+    echo "      dirs: [ \".\" ]" >> ./.rr.yaml
   fi
 
   echo "logs:" >> ./.rr.yaml
@@ -56,18 +62,6 @@ if [ -f ./rr-worker.php ]; then
   fi
   if [ ${OAUTH_CLIENT_REDIRECT} ]; then
     echo "    OAUTH_CLIENT_REDIRECT: \"${OAUTH_CLIENT_REDIRECT}\"" >> ./.rr.yaml
-  fi
-  if [ ${ADMINS} ]; then
-    echo "    ADMINS: \"${ADMINS}\"" >> ./.rr.yaml
-  fi
-  if [ ${MANAGERS} ]; then
-    echo "    MANAGERS: \"${MANAGERS}\"" >> ./.rr.yaml
-  fi
-  if [ ${ACCOUNTANTS} ]; then
-    echo "    ACCOUNTANTS: \"${ACCOUNTANTS}\"" >> ./.rr.yaml
-  fi
-  if [ ${DEVELOPERS} ]; then
-    echo "    DEVELOPERS: \"${DEVELOPERS}\"" >> ./.rr.yaml
   fi
   echo "" >> ./.rr.yaml
 fi

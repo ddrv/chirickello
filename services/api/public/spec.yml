@@ -217,7 +217,7 @@ components:
   schemas:
     login:
       type: string
-      pattern: ^[a-z][a-z0-9\-\.]{3,32}$
+      pattern: ^[a-z0-9]{1,32}$
       example: parrot-1
     taskId:
       type: string

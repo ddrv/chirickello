@@ -8,8 +8,9 @@ use Chirickello\Auth\Middleware\CorsMiddleware;
 use Chirickello\Auth\Middleware\TokenMiddleware;
 use Chirickello\Auth\Repo\ClientRepo\ClientEnvRepo;
 use Chirickello\Auth\Repo\ClientRepo\ClientRepo;
-use Chirickello\Auth\Repo\UserRepo\UserEnvRepo;
+use Chirickello\Auth\Repo\UserRepo\UserPdoRepo;
 use Chirickello\Auth\Repo\UserRepo\UserRepo;
+use Chirickello\Auth\Service\UserService\UserService;
 use Ddrv\Container\Container;
 use Ddrv\Env\Env;
 use Nyholm\Psr7\Factory\Psr17Factory;
@@ -39,7 +40,11 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'a
 
 $container = new Container();
 
+$root = __DIR__;
+$data = implode(DIRECTORY_SEPARATOR, [$root . DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'data']);
 $container->value('root', __DIR__);
+$container->value('data', $data);
+$container->value('db', $data . DIRECTORY_SEPARATOR . 'database.sqlite3');
 
 // ENV
 
@@ -79,19 +84,26 @@ $container->service(Environment::class, function (ContainerInterface $container)
     return new Environment($container->get(LoaderInterface::class), $options);
 });
 
+// DATABASE
+
+$container->service(PDO::class, function (ContainerInterface $container) {
+    $pdo = new PDO('sqlite:' . $container->get('db'));
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+    $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+    $pdo->exec('PRAGMA journal_mode = WAL');
+    $pdo->exec('PRAGMA foreign_keys = ON');
+    return $pdo;
+});
+
 // REPO
 
-$container->service(UserEnvRepo::class, function (ContainerInterface $container) {
-    /** @var Env $env */
-    $env = $container->get(Env::class);
-    return new UserEnvRepo(
-        $env->get('ADMINS'),
-        $env->get('MANAGERS'),
-        $env->get('ACCOUNTANTS'),
-        $env->get('DEVELOPERS')
+$container->service(UserPdoRepo::class, function (ContainerInterface $container) {
+    return new UserPdoRepo(
+        $container->get(PDO::class)
     );
 });
-$container->bind(UserRepo::class, UserEnvRepo::class);
+$container->bind(UserRepo::class, UserPdoRepo::class);
 
 $container->service(ClientEnvRepo::class, function (ContainerInterface $container) {
     /** @var Env $env */
@@ -104,11 +116,19 @@ $container->service(ClientEnvRepo::class, function (ContainerInterface $containe
 });
 $container->bind(ClientRepo::class, ClientEnvRepo::class);
 
+// SERVICE
+
+$container->service(UserService::class, function (ContainerInterface $container) {
+    return new UserService(
+        $container->get(UserRepo::class)
+    );
+});
+
 // MIDDLEWARE
 
 $container->service(TokenMiddleware::class, function (ContainerInterface $container) {
     return new TokenMiddleware(
-        $container->get(UserRepo::class)
+        $container->get(UserService::class)
     );
 });
 
@@ -132,7 +152,7 @@ $container->service(OAuth2Authorize::class, function (ContainerInterface $contai
         $container->get(RouteParserInterface::class),
         $container->get(Environment::class),
         $container->get(ClientRepo::class),
-        $container->get(UserRepo::class)
+        $container->get(UserService::class)
     );
 });
 

@@ -1,8 +1,10 @@
 #!/bin/sh
 set -e
 
+# install depends
 composer install -q
 
+# init project
 if [ -f ./bin/init.php ]; then
     php ./bin/init.php
 fi
@@ -11,6 +13,7 @@ if [ -d ./var ]; then
     chmod 0777 ./var -R
 fi
 
+# create roadrunner config
 if [ -f ./rr-worker.php ]; then
   echo "# generated automatically. do not edit" > ./.rr.yaml
   echo "" >> ./.rr.yaml
@@ -69,6 +72,7 @@ if [ -f ./rr-worker.php ]; then
   echo "" >> ./.rr.yaml
 fi
 
+# create supervisor config
 echo "[supervisord]" > /etc/supervisord.conf
 echo "nodaemon=true" >> /etc/supervisord.conf
 echo "logfile=/var/log/supervisor/supervisord.log" >> /etc/supervisord.conf
@@ -78,10 +82,24 @@ if [ -f ./rr-worker.php ]; then
   echo "[program:roadrunner]" >> /etc/supervisord.conf
   echo "command=/usr/local/bin/roadrunner serve -c /var/www/app/.rr.yaml" >> /etc/supervisord.conf
 fi
-if [ -f ./bin/consume.php ]; then
+
+# Add application workers to supervisor
+if [ -f ./bin/console ]; then
+OLD_IFS=$IFS
+IFS=","
+list=$WORKERS
+
+num=0
+for worker in $list
+do
   echo "" >> /etc/supervisord.conf
-  echo "[program:consumer]" >> /etc/supervisord.conf
-  echo "command=php /var/www/app/bin/consume.php" >> /etc/supervisord.conf
+  echo "[program:worker-$num]" >> /etc/supervisord.conf
+  echo "command=php /var/www/app/bin/console $worker" >> /etc/supervisord.conf
+  num=$((num+1))
+done
+
+IFS=$OLD_IFS
 fi
 
+#run, Forest, run!
 /usr/bin/supervisord -c /etc/supervisord.conf

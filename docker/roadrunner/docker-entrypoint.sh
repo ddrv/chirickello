@@ -80,7 +80,7 @@ echo "pidfile=/var/run/supervisord.pid" >> /etc/supervisord.conf
 if [ -f ./rr-worker.php ]; then
   echo "" >> /etc/supervisord.conf
   echo "[program:roadrunner]" >> /etc/supervisord.conf
-  echo "command=/usr/local/bin/roadrunner serve -c /var/www/app/.rr.yaml" >> /etc/supervisord.conf
+  echo "command=/usr/local/bin/roadrunner serve -c /opt/app/.rr.yaml" >> /etc/supervisord.conf
 fi
 
 # Add application workers to supervisor
@@ -94,7 +94,7 @@ for worker in $list
 do
   echo "" >> /etc/supervisord.conf
   echo "[program:worker-$num]" >> /etc/supervisord.conf
-  echo "command=php /var/www/app/bin/console $worker" >> /etc/supervisord.conf
+  echo "command=php /opt/app/bin/console $worker" >> /etc/supervisord.conf
   num=$((num+1))
 done
 

@@ -6,7 +6,7 @@ services:
     tty: true
     stdin_open: true
     volumes:
-      - ./services/auth:/var/www/app
+      - ./services/auth:/opt/app
     expose:
       - "80"
     ports:
@@ -27,7 +27,7 @@ services:
     tty: true
     stdin_open: true
     volumes:
-      - ./services/accounting:/var/www/app
+      - ./services/accounting:/opt/app
     expose:
       - "80"
     depends_on:
@@ -38,7 +38,7 @@ services:
     tty: true
     stdin_open: true
     volumes:
-      - ./services/analytics:/var/www/app
+      - ./services/analytics:/opt/app
     expose:
       - "80"
     environment:
@@ -51,7 +51,7 @@ services:
     tty: true
     stdin_open: true
     volumes:
-      - ./services/task-tracker:/var/www/app
+      - ./services/task-tracker:/opt/app
     expose:
       - "80"
     environment:
@@ -69,7 +69,7 @@ services:
       - auth
       - task-tracker
     volumes:
-      - ./services/api:/var/www/app
+      - ./services/api:/opt/app
     expose:
       - "80"
     environment:

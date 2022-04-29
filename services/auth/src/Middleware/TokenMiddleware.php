@@ -29,11 +29,13 @@ class TokenMiddleware implements MiddlewareInterface
         }
 
         $raw = explode(':', base64_decode($matches['token']));
-        if (count($raw) !== 2) {
+        if (count($raw) !== 3) {
             return $handler->handle($request);
         }
 
-        [$id, $scope] = $raw;
+        [$id, $unused, $scope] = $raw;
+        unset($unused);
+
         if (empty($id)) {
             return $handler->handle($request);
         }

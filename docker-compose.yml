@@ -12,8 +12,6 @@ services:
     build: docker/satis
     expose:
       - "80"
-    ports:
-      - "8000:80"
     volumes:
       - ./services/satis/packages:/opt/satis/packages
   zookeeper:

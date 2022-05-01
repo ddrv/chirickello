@@ -78,22 +78,12 @@ if [ -f ./rr-worker.php ]; then
 fi
 
 # Add application workers to supervisor
-if [ -f ./bin/console ]; then
-OLD_IFS=$IFS
-IFS=","
-list=$WORKERS
-
-num=0
-for worker in $list
-do
+if [ -f ./workers ]; then
   echo "" >> /etc/supervisord.conf
-  echo "[program:worker-$num]" >> /etc/supervisord.conf
-  echo "command=php /opt/app/bin/console $worker" >> /etc/supervisord.conf
-  num=$((num+1))
-done
-
-IFS=$OLD_IFS
+  cat ./workers | sed -e 's/APP_ROOT/\/opt\/app/g' >> /etc/supervisord.conf
 fi
+
+echo "" >> /etc/supervisord.conf
 
 #run, Forest, run!
 /usr/bin/supervisord -c /etc/supervisord.conf

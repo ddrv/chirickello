@@ -1,0 +1,26 @@
+{
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "http://satis"
+    }
+  ],
+  "config": {
+    "secure-http": false
+  },
+  "require": {
+    "php": ">=7.4",
+    "symfony/mailer": "^5.4",
+    "twig/twig": "^3.3",
+    "ddrv/container": "^2.0",
+    "ddrv/env": "^1.0",
+    "chirickello/event-user-created": "^1.0",
+    "chirickello/event-user-email-updated": "^1.0",
+    "chirickello/event-salary-paid": "^1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Chirickello\\Sender\\": "src/"
+    }
+  }
+}

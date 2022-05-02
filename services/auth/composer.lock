@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c3bd59bfb3b7e5353d2c57d9ad7f81f0",
+    "content-hash": "d369b45c4cfc3619e572c7ddde54b499",
     "packages": [
         {
             "name": "ddrv/container",
@@ -1386,7 +1386,9 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=7.4"
+        "php": ">=7.4",
+        "ext-pdo": "*",
+        "ext-pdo_sqlite": "*"
     },
     "platform-dev": [],
     "plugin-api-version": "2.3.0"

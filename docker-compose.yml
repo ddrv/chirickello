@@ -59,8 +59,10 @@ services:
     expose:
       - "80"
     depends_on:
+      - satis
       - auth
       - kafka
+      - sender
   analytics:
     build: docker/roadrunner
     tty: true
@@ -72,6 +74,22 @@ services:
     environment:
       - "DEBUG=${DEBUG}"
     depends_on:
+      - satis
+      - auth
+      - kafka
+  sender:
+    build: docker/roadrunner
+    tty: true
+    stdin_open: true
+    volumes:
+      - ./services/sender:/opt/app
+    environment:
+      - "DEBUG=${DEBUG}"
+      - "MAILER_DSN=${MAILER_DSN}"
+      - "SENDER_EMAIL=${SENDER_EMAIL}"
+      - "SENDER_NAME=${SENDER_NAME}"
+    depends_on:
+      - satis
       - auth
       - kafka
   task-tracker:

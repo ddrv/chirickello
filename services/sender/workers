@@ -1,0 +1,5 @@
+[program:queue1]
+command=APP_ROOT/bin/worker.php --arg1 val1
+
+[program:queue2]
+command=APP_ROOT/bin/worker.php --arg1 val2

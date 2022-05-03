@@ -2,8 +2,10 @@
 set -e
 
 # clear data
-if [ -d ./public/dist ]; then
-  rm -rf ./public/dist
+if [ ${DEBUG} ]; then
+  if [ -d ./public/dist ]; then
+    rm -rf ./public/dist
+  fi
 fi
 
 # build

@@ -2,8 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Chirickello\Package\Event;
+namespace Chirickello\Package\Event\BalanceCalculated;
 
-class BalanceCalculated
+use Chirickello\Package\Event\BaseEvent\BaseEvent;
+
+class BalanceCalculated extends BaseEvent
 {
+    public function jsonSerialize(): array
+    {
+        return [
+            'event' => 'balance.calculated',
+            'data' => [],
+        ];
+    }
 }
+

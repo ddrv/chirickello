@@ -16,10 +16,7 @@ class User
         $this->id = $id;
         $this->login = $login;
         $this->email = $email;
-        $this->original = [
-            'login' => $login,
-            'email' => $email,
-        ];
+        $this->flush();
     }
 
     public function getId(): string
@@ -60,5 +57,13 @@ class User
     public function isChanged(): bool
     {
         return $this->isLoginChanged() || $this->isEmailChanged();
+    }
+
+    public function flush(): void
+    {
+        $this->original = [
+            'login' => $this->login,
+            'email' => $this->email,
+        ];
     }
 }

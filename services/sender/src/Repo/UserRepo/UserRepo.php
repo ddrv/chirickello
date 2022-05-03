@@ -23,4 +23,11 @@ interface UserRepo
      * @throws StorageException
      */
     public function save(User $user): void;
+
+    /**
+     * @param User $user
+     * @return void
+     * @throws StorageException
+     */
+    public function delete(User $user): void;
 }

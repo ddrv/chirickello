@@ -15,8 +15,7 @@ RUN apk update && \
       php7-curl \
       php7-sockets \
       php7-pdo \
-      php7-pdo_sqlite \
-      php7-rdkafka
+      php7-pdo_sqlite
 
 # install composer
 COPY composer-install.sh /

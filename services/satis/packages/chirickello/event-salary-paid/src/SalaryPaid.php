@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Chirickello\Package\Event;
+namespace Chirickello\Package\Event\SalaryPaid;
 
+use Chirickello\Package\Event\BaseEvent\BaseEvent;
 use DateTimeImmutable;
 
-class SalaryPaid
+class SalaryPaid extends BaseEvent
 {
     private string $userId;
     private float $amount;
@@ -32,5 +33,17 @@ class SalaryPaid
     public function getDate(): DateTimeImmutable
     {
         return $this->date;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'event' => 'salary.paid',
+            'data' => [
+                'userId' => $this->userId,
+                'amount' => $this->amount,
+                'date' => $this->date->format('Y-m-d\TH:i:s')
+            ],
+        ];
     }
 }

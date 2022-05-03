@@ -73,6 +73,7 @@ class UserPdoRepo implements UserRepo
         } else {
             $this->update($user);
         }
+        $user->flush();
     }
 
     /**
@@ -131,6 +132,9 @@ class UserPdoRepo implements UserRepo
      */
     private function update(User $user): void
     {
+        if (!$user->isChanged()) {
+            return;
+        }
         $id = $user->getId();
         $login = $user->getLogin();
         $email = $user->getEmail();
@@ -150,14 +154,25 @@ class UserPdoRepo implements UserRepo
                 }
             }
 
-            $sql = 'UPDATE users SET login = ?, email = ?, roles = ? WHERE id = ?;';
+            $set = [];
+            $params = [];
+
+            if ($user->isLoginChanged()) {
+                $set[] = 'login = ?';
+                $params[] = $login;
+            }
+            if ($user->isEmailChanged()) {
+                $set[] = 'email = ?';
+                $params[] = $email;
+            }
+            if ($user->isRolesChanged()) {
+                $set[] = 'roles = ?';
+                $params[] = implode(',', $user->getRoles());
+            }
+            $params[] = $id;
+            $sql = 'UPDATE users SET ' . (implode(', ', $set)) . ' WHERE id = ?;';
             $st = $this->db->prepare($sql);
-            $st->execute([
-                $login,
-                $email,
-                implode(',', $user->getRoles()),
-                $id,
-            ]);
+            $st->execute($params);
             $this->db->commit();
         } catch (EmailExistsException|LoginExistsException $exception) {
             $this->db->rollBack();
@@ -183,6 +198,7 @@ class UserPdoRepo implements UserRepo
             }
             $user->addRole($role);
         }
+        $user->flush();
         return $user;
     }
 

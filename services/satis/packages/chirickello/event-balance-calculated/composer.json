@@ -3,11 +3,13 @@
   "type": "library",
   "version": "1.0.0",
   "require": {
-    "php": ">=7.4"
+    "php": ">=7.4",
+    "ext-json": "*",
+    "chirickello/base-event": "^1.0"
   },
   "autoload": {
     "psr-4": {
-      "Chirickello\\Package\\Event\\": "src/"
+      "Chirickello\\Package\\Event\\BalanceCalculated\\": "src/"
     }
   }
 }

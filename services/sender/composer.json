@@ -14,9 +14,10 @@
     "twig/twig": "^3.3",
     "ddrv/container": "^2.0",
     "ddrv/env": "^1.0",
-    "chirickello/event-user-created": "^1.0",
-    "chirickello/event-user-email-updated": "^1.0",
-    "chirickello/event-salary-paid": "^1.0"
+    "symfony/event-dispatcher": "^5.4",
+    "chirickello/event-user-added": "^1.0",
+    "chirickello/event-salary-paid": "^1.0",
+    "chirickello/consumer-rabbitmq": "^1.0"
   },
   "autoload": {
     "psr-4": {

@@ -12,26 +12,42 @@ services:
     build: docker/satis
     expose:
       - "80"
+    environment:
+      - "DEBUG=${DEBUG}"
+    ports:
+      - "8085:80"
     volumes:
       - ./services/satis/packages:/opt/satis/packages
-  zookeeper:
-    image: blacktop/kafka:3.1
-    command: zookeeper-server-start.sh config/zookeeper.properties
+  rabbitmq:
+    image: rabbitmq:3.9-management-alpine
     expose:
-      - "2181"
-  kafka:
-    image: blacktop/kafka:3.1
-    depends_on:
-      - zookeeper
-    expose:
-      - "9092"
-    entrypoint: /wait-for-it.sh zookeeper:2181 -s --timeout=5 -- /kafka-entrypoint.sh
-    command: kafka-server-start.sh config/server.properties
+      - "5672"
+      - "15672"
+    ports:
+      - "15672:15672"
     environment:
-      - KAFKA_ADVERTISED_HOST_NAME=localhost
-      - KAFKA_CREATE_TOPICS=docker:1:1
-      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-      - KAFKA_HEAP_OPTS=-Xmx2G -Xms2G
+      - "RABBITMQ_DEFAULT_USER=user"
+      - "RABBITMQ_DEFAULT_PASS=pass"
+#  zookeeper:
+#    image: blacktop/kafka:3.1
+#    command: zookeeper-server-start.sh config/zookeeper.properties
+#    expose:
+#      - "2181"
+#  kafka:
+#    image: blacktop/kafka:3.1
+#    depends_on:
+#      - zookeeper
+#    expose:
+#      - "9092"
+#    entrypoint: /wait-for-it.sh zookeeper:2181 -s --timeout=10 -- /kafka-entrypoint.sh
+#    command: kafka-server-start.sh config/server.properties
+#    environment:
+#      - "KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092"
+#      - "KAFKA_PORT=9092"
+##      - "KAFKA_ADVERTISED_HOST_NAME=kafka"
+#      - "KAFKA_CREATE_TOPICS=user:1:1"
+#      - "KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181"
+#      - "KAFKA_HEAP_OPTS=-Xmx2G -Xms2G"
   auth:
     build: docker/roadrunner
     tty: true
@@ -44,12 +60,13 @@ services:
       - "${LOCAL_AUTH_PORT}:80"
     environment:
       - "DEBUG=${DEBUG}"
+      - "RABBIT_MQ_DSN=${RABBIT_MQ_DSN}"
       - "OAUTH_CLIENT_ID=${OAUTH_CLIENT_ID}"
       - "OAUTH_CLIENT_SECRET=${OAUTH_CLIENT_SECRET}"
       - "OAUTH_CLIENT_REDIRECT=${OAUTH_CLIENT_REDIRECT}"
     depends_on:
       - satis
-      - kafka
+      - rabbitmq
   accounting:
     build: docker/roadrunner
     tty: true
@@ -61,7 +78,7 @@ services:
     depends_on:
       - satis
       - auth
-      - kafka
+      - rabbitmq
       - sender
   analytics:
     build: docker/roadrunner
@@ -76,7 +93,7 @@ services:
     depends_on:
       - satis
       - auth
-      - kafka
+      - rabbitmq
   sender:
     build: docker/roadrunner
     tty: true
@@ -88,10 +105,11 @@ services:
       - "MAILER_DSN=${MAILER_DSN}"
       - "SENDER_EMAIL=${SENDER_EMAIL}"
       - "SENDER_NAME=${SENDER_NAME}"
+      - "RABBIT_MQ_DSN=${RABBIT_MQ_DSN}"
     depends_on:
       - satis
       - auth
-      - kafka
+      - rabbitmq
   task-tracker:
     build: docker/roadrunner
     tty: true
@@ -104,7 +122,7 @@ services:
       - "DEBUG=${DEBUG}"
     depends_on:
       - auth
-      - kafka
+      - rabbitmq
   api:
     build: docker/roadrunner
     tty: true

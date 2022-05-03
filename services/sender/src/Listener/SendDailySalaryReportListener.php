@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Chirickello\Sender\Listener;
 
-use Chirickello\Package\Event\SalaryPaid;
+use Chirickello\Package\Event\SalaryPaid\SalaryPaid;
 use Chirickello\Sender\Exception\UserNotFoundException;
 use Chirickello\Sender\Repo\UserRepo\UserRepo;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;

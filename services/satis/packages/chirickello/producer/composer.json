@@ -1,0 +1,14 @@
+{
+  "name": "chirickello/producer",
+  "type": "library",
+  "version": "1.0.0",
+  "require": {
+    "php": ">=7.4",
+    "chirickello/base-event": "^1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Chirickello\\Package\\Producer\\": "src/"
+    }
+  }
+}

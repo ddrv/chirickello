@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Chirickello\Sender\Listener;
 
-use Chirickello\Package\Event\UserCreated;
+use Chirickello\Package\Event\UserAdded\UserAdded;
 use Chirickello\Sender\Entity\User;
 use Chirickello\Sender\Exception\UserNotFoundException;
 use Chirickello\Sender\Repo\UserRepo\UserRepo;
 
-class SetUserLoginListener
+class SaveCreatedUserListener
 {
     private UserRepo $userRepo;
 
@@ -24,14 +24,14 @@ class SetUserLoginListener
      */
     public function __invoke(object $event): void
     {
-        if (!$event instanceof UserCreated) {
+        if (!$event instanceof UserAdded) {
             return;
         }
 
         try {
             $user = $this->userRepo->getById($event->getUserId());
         } catch (UserNotFoundException $e) {
-            $user = new User($event->getUserId());
+            $user = new User($event->getUserId(), $event->getLogin(), $event->getEmail());
         }
         $user->setLogin($event->getLogin());
         $this->userRepo->save($user);

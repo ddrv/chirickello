@@ -1,5 +1,6 @@
-[program:queue1]
-command=APP_ROOT/bin/worker.php --arg1 val1
+[program:user-sync]
+command=php APP_ROOT/bin/consumer.php user-cud
 
-[program:queue2]
-command=APP_ROOT/bin/worker.php --arg1 val2
+[program:mailing]
+command=php APP_ROOT/bin/consumer.php notifications
+

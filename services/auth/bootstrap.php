@@ -11,10 +11,16 @@ use Chirickello\Auth\Repo\ClientRepo\ClientRepo;
 use Chirickello\Auth\Repo\UserRepo\UserPdoRepo;
 use Chirickello\Auth\Repo\UserRepo\UserRepo;
 use Chirickello\Auth\Service\UserService\UserService;
+use Chirickello\Package\Event\UserAdded\UserAdded;
+use Chirickello\Package\Event\UserRolesAssigned\UserRolesAssigned;
+use Chirickello\Package\Listener\ProduceEventListener\ProduceEventListener;
+use Chirickello\Package\Producer\ProducerInterface;
+use Chirickello\Package\Producer\RabbitMQ\Producer;
 use Ddrv\Container\Container;
 use Ddrv\Env\Env;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Container\ContainerInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
@@ -32,6 +38,7 @@ use Slim\Interfaces\RouteParserInterface;
 use Slim\Middleware\ErrorMiddleware;
 use Slim\Routing\RouteCollector;
 use Slim\Routing\RouteParser;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Twig\Loader\LoaderInterface;
@@ -84,6 +91,31 @@ $container->service(Environment::class, function (ContainerInterface $container)
     return new Environment($container->get(LoaderInterface::class), $options);
 });
 
+// PRODUCER
+$container->service(Producer::class, function (ContainerInterface $container) {
+    /** @var Env $env */
+    $env = $container->get(Env::class);
+    return new Producer(
+        $env->get('RABBIT_MQ_DSN')
+    );
+});
+$container->bind(ProducerInterface::class, Producer::class);
+
+// EVENT DISPATCHER
+$container->service(ProduceEventListener::class, function (ContainerInterface $container) {
+    $listener = new ProduceEventListener(
+        $container->get(ProducerInterface::class)
+    );
+    $listener->bindEventToTopic(UserAdded::class, 'user-cud');
+    $listener->bindEventToTopic(UserRolesAssigned::class, 'user');
+    return $listener;
+});
+
+$container->service(EventDispatcher::class, function () {
+    return new EventDispatcher();
+});
+$container->bind(EventDispatcherInterface::class, EventDispatcher::class);
+
 // DATABASE
 
 $container->service(PDO::class, function (ContainerInterface $container) {
@@ -120,7 +152,8 @@ $container->bind(ClientRepo::class, ClientEnvRepo::class);
 
 $container->service(UserService::class, function (ContainerInterface $container) {
     return new UserService(
-        $container->get(UserRepo::class)
+        $container->get(UserRepo::class),
+        $container->get(EventDispatcherInterface::class)
     );
 });
 
@@ -242,5 +275,10 @@ $container->service(ErrorMiddleware::class, function (ContainerInterface $contai
         $debug
     );
 });
+
+/** @var EventDispatcher $eventDispatcher */
+$eventDispatcher = $container->get(EventDispatcher::class);
+$eventDispatcher->addListener(UserAdded::class, $container->get(ProduceEventListener::class));
+$eventDispatcher->addListener(UserRolesAssigned::class, $container->get(ProduceEventListener::class));
 
 return $container;

@@ -44,6 +44,25 @@ class UserPdoRepo implements UserRepo
         } catch (UserNotFoundException $e) {
             $this->create($user);
         }
+        $user->flush();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function delete(User $user): void
+    {
+        try {
+            $sql = 'DELETE FROM users WHERE id = ?;';
+            $st = $this->db->prepare($sql);
+            $st->execute([
+                $user->getId(),
+            ]);
+            $this->db->commit();
+        } catch (Throwable $exception) {
+            $this->db->rollBack();
+            throw new StorageException('storage exception', 0, $exception);
+        }
     }
 
     /**
@@ -93,7 +112,7 @@ class UserPdoRepo implements UserRepo
             $params[] = $user->getLogin();
         }
         $params[] = $user->getId();
-        $sql = sprintf('UPDATE users SET %s WHERE id = ?', implode(', ', $update));
+        $sql = 'UPDATE users SET ' . (implode(', ', $update)) . ' WHERE id = ?';
 
         $this->db->beginTransaction();
         try {

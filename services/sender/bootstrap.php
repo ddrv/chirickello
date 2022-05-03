@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-use Chirickello\Package\Event\SalaryPaid;
-use Chirickello\Package\Event\UserCreated;
-use Chirickello\Package\Event\UserEmailUpdated;
+use Chirickello\Package\Consumer\ConsumerInterface;
+use Chirickello\Package\Event\SalaryPaid\SalaryPaid;
+use Chirickello\Package\Event\UserAdded\UserAdded;
+use Chirickello\Sender\Consumer\Consumer;
 use Chirickello\Sender\Listener\SendDailySalaryReportListener;
 use Chirickello\Sender\Listener\SetMailSender;
-use Chirickello\Sender\Listener\SetUserEmailListener;
-use Chirickello\Sender\Listener\SetUserLoginListener;
+use Chirickello\Sender\Listener\SaveCreatedUserListener;
 use Chirickello\Sender\Repo\UserRepo\UserPdoRepo;
 use Chirickello\Sender\Repo\UserRepo\UserRepo;
 use Ddrv\Container\Container;
@@ -71,14 +71,8 @@ $container->service(Environment::class, function (ContainerInterface $container)
     return new Environment($container->get(LoaderInterface::class), $options);
 });
 
-$container->service(SetUserLoginListener::class, function (ContainerInterface $container) {
-    return new SetUserLoginListener(
-        $container->get(UserRepo::class)
-    );
-});
-
-$container->service(SetUserEmailListener::class, function (ContainerInterface $container) {
-    return new SetUserEmailListener(
+$container->service(SaveCreatedUserListener::class, function (ContainerInterface $container) {
+    return new SaveCreatedUserListener(
         $container->get(UserRepo::class)
     );
 });
@@ -116,11 +110,20 @@ $container->service(Mailer::class, function (ContainerInterface $container) {
     return new Mailer($container->get(TransportInterface::class));
 });
 
-/** @var EventDispatcherInterface $eventDispatcher */
-$eventDispatcher = $container->get(EventDispatcherInterface::class);
+$container->service(Consumer::class, function (ContainerInterface $container) {
+    /** @var Env $env */
+    $env = $container->get(Env::class);
+    return new Consumer(
+        $container->get(EventDispatcherInterface::class),
+        $env->get('RABBIT_MQ_DSN')
+    );
+});
+$container->bind(ConsumerInterface::class, Consumer::class);
+
+/** @var EventDispatcher $eventDispatcher */
+$eventDispatcher = $container->get(EventDispatcher::class);
 $eventDispatcher->addListener(MessageEvent::class, $container->get(SetMailSender::class));
 $eventDispatcher->addListener(SalaryPaid::class, $container->get(SendDailySalaryReportListener::class));
-$eventDispatcher->addListener(UserCreated::class, $container->get(SetUserLoginListener::class));
-$eventDispatcher->addListener(UserEmailUpdated::class, $container->get(SetUserEmailListener::class));
+$eventDispatcher->addListener(UserAdded::class, $container->get(SaveCreatedUserListener::class));
 
 return $container;

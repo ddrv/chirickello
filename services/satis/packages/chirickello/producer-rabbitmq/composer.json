@@ -1,0 +1,15 @@
+{
+  "name": "chirickello/producer-rabbitmq",
+  "type": "library",
+  "version": "1.0.0",
+  "require": {
+    "php": ">=7.4",
+    "chirickello/producer": "^1.0",
+    "php-amqplib/php-amqplib": "^3.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "Chirickello\\Package\\Producer\\RabbitMQ\\": "src/"
+    }
+  }
+}

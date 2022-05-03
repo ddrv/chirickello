@@ -1,0 +1,14 @@
+{
+  "name": "chirickello/listener-produce-event",
+  "type": "library",
+  "version": "1.0.0",
+  "require": {
+    "php": ">=7.4",
+    "chirickello/producer": "^1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Chirickello\\Package\\Listener\\ProduceEventListener\\": "src/"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "chirickello/middleware-auth-by-token",
+  "type": "library",
+  "version": "1.0.0",
+  "require": {
+    "php": ">=7.4",
+    "ext-json": "*",
+    "psr/http-server-middleware": "^1.0",
+    "psr/http-factory": "^1.0",
+    "psr/http-client": "^1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Chirickello\\Package\\Middleware\\AuthByToken\\": "src/"
+    }
+  }
+}

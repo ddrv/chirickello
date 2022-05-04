@@ -96,7 +96,7 @@ $container->service(Producer::class, function (ContainerInterface $container) {
     /** @var Env $env */
     $env = $container->get(Env::class);
     return new Producer(
-        $env->get('RABBIT_MQ_DSN')
+        $env->get('RABBITMQ_DSN')
     );
 });
 $container->bind(ProducerInterface::class, Producer::class);

@@ -115,7 +115,7 @@ $container->service(Consumer::class, function (ContainerInterface $container) {
     $env = $container->get(Env::class);
     return new Consumer(
         $container->get(EventDispatcherInterface::class),
-        $env->get('RABBIT_MQ_DSN')
+        $env->get('RABBITMQ_DSN')
     );
 });
 $container->bind(ConsumerInterface::class, Consumer::class);

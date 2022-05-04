@@ -1,14 +1,30 @@
 <?php
 
-use App\Handler\Error\ForbiddenHandler;
-use App\Handler\Error\NotFoundHandler;
-use App\Handler\Error\ServerErrorHandler;
-use App\Handler\Error\UnauthorizedHandler;
+use Chirickello\Package\Middleware\AuthByToken\AuthByTokenMiddleware;
+use Chirickello\Package\Middleware\AuthRequired\AuthRequiredMiddleware;
+use Chirickello\Package\Middleware\RoleAccess\RoleAccessMiddlewareFactory;
+use Chirickello\Package\Middleware\ScopeAccess\ScopeAccessMiddlewareFactory;
+use Chirickello\Package\Timer\ForcedTimer;
+use Chirickello\Package\Timer\RealTimer;
+use Chirickello\Package\Timer\TimerInterface;
+use Chirickello\TaskTracker\Handler\TaskCreateHandler;
+use Chirickello\TaskTracker\Handler\TaskShowHandler;
+use Chirickello\TaskTracker\Handler\TasksListHandler;
+use Chirickello\TaskTracker\Handler\TasksShuffleHandler;
+use Chirickello\TaskTracker\Handler\TaskUpdateHandler;
+use Chirickello\TaskTracker\Middleware\SaveUser;
+use Chirickello\TaskTracker\Repo\TaskRepo\TaskPdoRepo;
+use Chirickello\TaskTracker\Repo\TaskRepo\TaskRepo;
+use Chirickello\TaskTracker\Repo\UserRepo\UserPdoRepo;
+use Chirickello\TaskTracker\Repo\UserRepo\UserRepo;
+use Chirickello\TaskTracker\Transformer\TaskTransformer;
 use Ddrv\Container\Container;
 use Ddrv\Env\Env;
-use Ddrv\ServerRequestWizard\ServerRequestWizard;
+use Ddrv\Http\Client\Client;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Container\ContainerInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
+use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
@@ -17,34 +33,59 @@ use Psr\Http\Message\UploadedFileFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use Slim\App;
 use Slim\CallableResolver;
-use Slim\Exception\HttpForbiddenException;
-use Slim\Exception\HttpNotFoundException;
-use Slim\Exception\HttpUnauthorizedException;
 use Slim\Handlers\Strategies\RequestHandler;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Interfaces\RouteCollectorInterface;
+use Slim\Interfaces\RouteCollectorProxyInterface;
 use Slim\Interfaces\RouteParserInterface;
 use Slim\Middleware\ErrorMiddleware;
 use Slim\Routing\RouteCollector;
 use Slim\Routing\RouteParser;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
 
 $container = new Container();
 
-$container->value('root', __DIR__);
+$root = __DIR__;
+$container->value('root', $root);
+$container->value('db', implode(DIRECTORY_SEPARATOR, [$root, 'var', 'data', 'database.sqlite3']));
 
 // ENV
-
 $container->service(Env::class, function (ContainerInterface $container) {
     return new Env(
         $container->get('root') . DIRECTORY_SEPARATOR . '.env'
     );
 });
 
-// HTTP-FACTORY
+// DATABASE
+$container->service(PDO::class, function (ContainerInterface $container) {
+    $pdo = new PDO('sqlite:' . $container->get('db'));
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+    $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+    $pdo->exec('PRAGMA journal_mode = WAL');
+    $pdo->exec('PRAGMA foreign_keys = ON');
+    return $pdo;
+});
 
+// REPO
+$container->service(UserPdoRepo::class, function (ContainerInterface $container) {
+    return new UserPdoRepo(
+        $container->get(PDO::class)
+    );
+});
+$container->bind(UserRepo::class, UserPdoRepo::class);
+
+$container->service(TaskPdoRepo::class, function (ContainerInterface $container) {
+    return new TaskPdoRepo(
+        $container->get(PDO::class)
+    );
+});
+$container->bind(TaskRepo::class, TaskPdoRepo::class);
+
+// HTTP-FACTORY
 $container->service(Psr17Factory::class, function() {
     return new Psr17Factory();
 });
@@ -55,8 +96,120 @@ $container->bind(StreamFactoryInterface::class, Psr17Factory::class);
 $container->bind(UploadedFileFactoryInterface::class, Psr17Factory::class);
 $container->bind(UriFactoryInterface::class, Psr17Factory::class);
 
-// SLIM
+// HTTP-CLIENT
+$container->service(Client::class, function (ContainerInterface $container) {
+    return new Client(
+        $container->get(ResponseFactoryInterface::class),
+        10
+    );
+});
+$container->bind(ClientInterface::class, Client::class);
 
+// MIDDLEWARE
+$container->service(AuthByTokenMiddleware::class, function (ContainerInterface $container) {
+    /** @var Env $env */
+    $env = $container->get(Env::class);
+    $authHost = (string)$env->get('AUTH_HOST');
+    return new AuthByTokenMiddleware(
+        $container->get(RequestFactoryInterface::class),
+        $container->get(UriFactoryInterface::class),
+        $container->get(ClientInterface::class),
+        $authHost
+    );
+});
+
+$container->service(AuthRequiredMiddleware::class, function (ContainerInterface $container) {
+    return new AuthRequiredMiddleware(
+        $container->get(RequestFactoryInterface::class)
+    );
+});
+
+$container->service(ScopeAccessMiddlewareFactory::class, function (ContainerInterface $container) {
+    return new ScopeAccessMiddlewareFactory(
+        $container->get(ResponseFactoryInterface::class)
+    );
+});
+
+$container->service(RoleAccessMiddlewareFactory::class, function (ContainerInterface $container) {
+    return new RoleAccessMiddlewareFactory(
+        $container->get(ResponseFactoryInterface::class)
+    );
+});
+
+$container->service(SaveUser::class, function (ContainerInterface $container) {
+    return new SaveUser(
+        $container->get(UserRepo::class)
+    );
+});
+
+// TRANSFORMERS
+$container->service(TaskTransformer::class, function(ContainerInterface $container) {
+    return new TaskTransformer(
+        $container->get(UserRepo::class)
+    );
+});
+
+// TIMER
+$container->service(TimerInterface::class, function (ContainerInterface $container) {
+    /** @var Env $env */
+    $env = $container->get(Env::class);
+    $debug = (bool)((int)$env->get('DEBUG'));
+    $speed = (int)$env->get('TIMER_SPEED');
+    if ($speed === 0) {
+        $speed = 1;
+    }
+    $begin = $env->get('TIMER_BEGIN');
+    if (!preg_match('/[0-9]{4}-[0-9]{2}-[0-9]{2}/u', $begin)) {
+        $debug = false;
+    }
+    if (!$debug || $speed === 1) {
+        return new RealTimer();
+    }
+    return new ForcedTimer($begin, $speed);
+});
+
+// HANDLERS
+$container->service(TaskCreateHandler::class, function (ContainerInterface $container) {
+    return new TaskCreateHandler(
+        $container->get(ResponseFactoryInterface::class),
+        $container->get(EventDispatcherInterface::class),
+        $container->get(TimerInterface::class),
+        $container->get(TaskRepo::class),
+        $container->get(UserRepo::class),
+        $container->get(TaskTransformer::class)
+    );
+});
+$container->service(TaskShowHandler::class, function (ContainerInterface $container) {
+    return new TaskShowHandler(
+        $container->get(ResponseFactoryInterface::class),
+        $container->get(TaskRepo::class),
+        $container->get(TaskTransformer::class)
+    );
+});
+$container->service(TasksListHandler::class, function (ContainerInterface $container) {
+    return new TasksListHandler(
+        $container->get(ResponseFactoryInterface::class),
+        $container->get(TaskRepo::class),
+        $container->get(TaskTransformer::class)
+    );
+});
+$container->service(TasksShuffleHandler::class, function (ContainerInterface $container) {
+    return new TasksShuffleHandler(
+        $container->get(ResponseFactoryInterface::class),
+        $container->get(EventDispatcherInterface::class)
+    );
+});
+$container->service(TaskUpdateHandler::class, function (ContainerInterface $container) {
+    return new TaskUpdateHandler(
+        $container->get(ResponseFactoryInterface::class),
+        $container->get(EventDispatcherInterface::class),
+        $container->get(TimerInterface::class),
+        $container->get(TaskRepo::class),
+        $container->get(TaskTransformer::class)
+    );
+});
+
+// SLIM
 $container->service(RouteParser::class, function (ContainerInterface $container) {
     return new RouteParser(
         $container->get(RouteCollectorInterface::class)
@@ -65,12 +218,36 @@ $container->service(RouteParser::class, function (ContainerInterface $container)
 $container->bind(RouteParserInterface::class, RouteParser::class);
 
 $container->service(RouteCollector::class, function (ContainerInterface $container) {
-    return new RouteCollector(
+    $router = new RouteCollector(
         $container->get(ResponseFactoryInterface::class),
         $container->get(CallableResolverInterface::class),
         $container,
         $container->get(InvocationStrategyInterface::class)
     );
+
+    /** @var ScopeAccessMiddlewareFactory $mwScopeFactory */
+    $mwScopeFactory = $container->get(ScopeAccessMiddlewareFactory::class);
+    /** @var RoleAccessMiddlewareFactory $mwRoleFactory */
+    $mwRoleFactory = $container->get(RoleAccessMiddlewareFactory::class);
+
+    $router->group('', function (RouteCollectorProxyInterface $router) use ($mwScopeFactory, $mwRoleFactory) {
+        $router->group('', function (RouteCollectorProxyInterface $router) {
+            $router->get('/tasks', TasksListHandler::class)->setName('task.list');
+            $router->post('/tasks', TaskCreateHandler::class)->setName('task.create');
+            $router->get('/tasks/{id}', TaskShowHandler::class)->setName('task.show');
+            $router->patch('/tasks/{id}', TaskUpdateHandler::class)->setName('task.update');
+        });
+
+        $router->group('', function (RouteCollectorProxyInterface $router) {
+            $router->patch('/processes/tasks_shuffle', TasksShuffleHandler::class)->setName('process.shuffle');
+        })->addMiddleware($mwRoleFactory->make(['admin']));
+    })
+        ->add(SaveUser::class)
+        ->addMiddleware($mwScopeFactory->make(['tasks']))
+        ->add(AuthRequiredMiddleware::class)
+        ->add(AuthByTokenMiddleware::class)
+    ;
+    return $router;
 });
 $container->bind(RouteCollectorInterface::class, RouteCollector::class);
 
@@ -91,6 +268,7 @@ $container->service(App::class, function (ContainerInterface $container) {
         $container->get(CallableResolverInterface::class),
         $container->get(RouteCollectorInterface::class)
     );
+    $app->addBodyParsingMiddleware();
     $app->addRoutingMiddleware();
     $app->add(ErrorMiddleware::class);
     return $app;
@@ -108,5 +286,11 @@ $container->service(ErrorMiddleware::class, function (ContainerInterface $contai
         $debug
     );
 });
+
+// EVENT DISPATCHER
+$container->service(EventDispatcher::class, function () {
+    return new EventDispatcher();
+});
+$container->bind(EventDispatcherInterface::class, EventDispatcher::class);
 
 return $container;

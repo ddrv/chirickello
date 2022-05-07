@@ -191,7 +191,7 @@ class TaskPdoRepo implements TaskRepo
         if ($isCount) {
             return [$sql . ';', $params];
         }
-        $sql .= ' ORDER BY created_at' . $filter->reverse ? ' DESC' : ' ASC';
+        $sql .= ' ORDER BY created_at ' . ($filter->reverse ? 'DESC' : 'ASC');
         if (!is_null($paginator)) {
             $offset = ($paginator->pageNum - 1) * $paginator->perPage;
             $sql .= ' LIMIT ' . $paginator->perPage . ' OFFSET ' . $offset;

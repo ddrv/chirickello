@@ -54,12 +54,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/task'
-          headers:
-            Location:
-              description: URI to created task
-              schema:
-                type: string
-                format: uri
         401:
           $ref: '#/components/responses/needAuthorization'
         403:
@@ -270,7 +264,7 @@ components:
       properties:
         pages:
           type: integer
-          minimum: 1
+          minimum: 0
     taskList:
       type: object
       required: [tasks]

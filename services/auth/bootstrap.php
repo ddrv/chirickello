@@ -92,24 +92,24 @@ $container->service(Environment::class, function (ContainerInterface $container)
 });
 
 // PRODUCER
-$container->service(Producer::class, function (ContainerInterface $container) {
-    /** @var Env $env */
-    $env = $container->get(Env::class);
-    return new Producer(
-        $env->get('RABBITMQ_DSN')
-    );
-});
-$container->bind(ProducerInterface::class, Producer::class);
+//$container->service(Producer::class, function (ContainerInterface $container) {
+//    /** @var Env $env */
+//    $env = $container->get(Env::class);
+//    return new Producer(
+//        $env->get('RABBITMQ_DSN')
+//    );
+//});
+//$container->bind(ProducerInterface::class, Producer::class);
 
 // EVENT DISPATCHER
-$container->service(ProduceEventListener::class, function (ContainerInterface $container) {
-    $listener = new ProduceEventListener(
-        $container->get(ProducerInterface::class)
-    );
-    $listener->bindEventToTopic(UserAdded::class, 'user-cud');
-    $listener->bindEventToTopic(UserRolesAssigned::class, 'user');
-    return $listener;
-});
+//$container->service(ProduceEventListener::class, function (ContainerInterface $container) {
+//    $listener = new ProduceEventListener(
+//        $container->get(ProducerInterface::class)
+//    );
+//    $listener->bindEventToTopic(UserAdded::class, 'user-cud');
+//    $listener->bindEventToTopic(UserRolesAssigned::class, 'user');
+//    return $listener;
+//});
 
 $container->service(EventDispatcher::class, function () {
     return new EventDispatcher();
@@ -277,8 +277,8 @@ $container->service(ErrorMiddleware::class, function (ContainerInterface $contai
 });
 
 /** @var EventDispatcher $eventDispatcher */
-$eventDispatcher = $container->get(EventDispatcher::class);
-$eventDispatcher->addListener(UserAdded::class, $container->get(ProduceEventListener::class));
-$eventDispatcher->addListener(UserRolesAssigned::class, $container->get(ProduceEventListener::class));
+//$eventDispatcher = $container->get(EventDispatcher::class);
+//$eventDispatcher->addListener(UserAdded::class, $container->get(ProduceEventListener::class));
+//$eventDispatcher->addListener(UserRolesAssigned::class, $container->get(ProduceEventListener::class));
 
 return $container;

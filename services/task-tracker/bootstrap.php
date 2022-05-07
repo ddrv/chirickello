@@ -1,17 +1,28 @@
 <?php
 
+use Chirickello\Package\Consumer\ConsumerInterface;
+use Chirickello\Package\Event\TaskAssigned\TaskAssigned;
+use Chirickello\Package\Event\TaskCompleted\TaskCompleted;
+use Chirickello\Package\Event\UserAdded\UserAdded;
+use Chirickello\Package\Event\UserRolesAssigned\UserRolesAssigned;
+use Chirickello\Package\Listener\ProduceEventListener\ProduceEventListener;
 use Chirickello\Package\Middleware\AuthByToken\AuthByTokenMiddleware;
 use Chirickello\Package\Middleware\AuthRequired\AuthRequiredMiddleware;
 use Chirickello\Package\Middleware\RoleAccess\RoleAccessMiddlewareFactory;
 use Chirickello\Package\Middleware\ScopeAccess\ScopeAccessMiddlewareFactory;
+use Chirickello\Package\Producer\ProducerInterface;
+use Chirickello\Package\Producer\RabbitMQ\Producer;
 use Chirickello\Package\Timer\ForcedTimer;
 use Chirickello\Package\Timer\RealTimer;
 use Chirickello\Package\Timer\TimerInterface;
+use Chirickello\TaskTracker\Consumer\Consumer;
 use Chirickello\TaskTracker\Handler\TaskCreateHandler;
 use Chirickello\TaskTracker\Handler\TaskShowHandler;
 use Chirickello\TaskTracker\Handler\TasksListHandler;
 use Chirickello\TaskTracker\Handler\TasksShuffleHandler;
 use Chirickello\TaskTracker\Handler\TaskUpdateHandler;
+use Chirickello\TaskTracker\Listener\UserAddListener;
+use Chirickello\TaskTracker\Listener\UserRolesAssignListener;
 use Chirickello\TaskTracker\Middleware\SaveUser;
 use Chirickello\TaskTracker\Repo\TaskRepo\TaskPdoRepo;
 use Chirickello\TaskTracker\Repo\TaskRepo\TaskRepo;
@@ -168,6 +179,27 @@ $container->service(TimerInterface::class, function (ContainerInterface $contain
     return new ForcedTimer($begin, $speed);
 });
 
+// CONSUMER
+$container->service(Consumer::class, function (ContainerInterface $container) {
+    /** @var Env $env */
+    $env = $container->get(Env::class);
+    return new Consumer(
+        $container->get(EventDispatcherInterface::class),
+        $env->get('RABBITMQ_DSN')
+    );
+});
+$container->bind(ConsumerInterface::class, Consumer::class);
+
+// PRODUCER
+$container->service(Producer::class, function (ContainerInterface $container) {
+    /** @var Env $env */
+    $env = $container->get(Env::class);
+    return new Producer(
+        $env->get('RABBITMQ_DSN')
+    );
+});
+$container->bind(ProducerInterface::class, Producer::class);
+
 // HANDLERS
 $container->service(TaskCreateHandler::class, function (ContainerInterface $container) {
     return new TaskCreateHandler(
@@ -196,7 +228,10 @@ $container->service(TasksListHandler::class, function (ContainerInterface $conta
 $container->service(TasksShuffleHandler::class, function (ContainerInterface $container) {
     return new TasksShuffleHandler(
         $container->get(ResponseFactoryInterface::class),
-        $container->get(EventDispatcherInterface::class)
+        $container->get(EventDispatcherInterface::class),
+        $container->get(TimerInterface::class),
+        $container->get(TaskRepo::class),
+        $container->get(UserRepo::class)
     );
 });
 $container->service(TaskUpdateHandler::class, function (ContainerInterface $container) {
@@ -239,7 +274,7 @@ $container->service(RouteCollector::class, function (ContainerInterface $contain
         });
 
         $router->group('', function (RouteCollectorProxyInterface $router) {
-            $router->patch('/processes/tasks_shuffle', TasksShuffleHandler::class)->setName('process.shuffle');
+            $router->post('/processes/tasks_shuffle', TasksShuffleHandler::class)->setName('process.shuffle');
         })->addMiddleware($mwRoleFactory->make(['admin']));
     })
         ->add(SaveUser::class)
@@ -287,10 +322,41 @@ $container->service(ErrorMiddleware::class, function (ContainerInterface $contai
     );
 });
 
+
+// EVENT LISTENERS
+$container->service(UserAddListener::class, function (ContainerInterface $container) {
+    return new UserAddListener(
+        $container->get(UserRepo::class)
+    );
+});
+
+$container->service(UserRolesAssignListener::class, function (ContainerInterface $container) {
+    return new UserRolesAssignListener(
+        $container->get(UserRepo::class)
+    );
+});
+
+$container->service(ProduceEventListener::class, function (ContainerInterface $container) {
+    $listener = new ProduceEventListener(
+        $container->get(ProducerInterface::class)
+    );
+    $listener->bindEventToTopic(TaskAssigned::class, 'task');
+    $listener->bindEventToTopic(TaskCompleted::class, 'task');
+    return $listener;
+});
+
+
 // EVENT DISPATCHER
 $container->service(EventDispatcher::class, function () {
     return new EventDispatcher();
 });
 $container->bind(EventDispatcherInterface::class, EventDispatcher::class);
+
+/** @var EventDispatcher $eventDispatcher */
+$eventDispatcher = $container->get(EventDispatcher::class);
+$eventDispatcher->addListener(UserAdded::class, $container->get(UserAddListener::class));
+$eventDispatcher->addListener(UserRolesAssigned::class, $container->get(UserRolesAssignListener::class));
+$eventDispatcher->addListener(TaskAssigned::class, $container->get(ProduceEventListener::class));
+$eventDispatcher->addListener(TaskCompleted::class, $container->get(ProduceEventListener::class));
 
 return $container;

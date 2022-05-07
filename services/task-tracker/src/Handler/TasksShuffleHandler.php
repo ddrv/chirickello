@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chirickello\TaskTracker\Handler;
 
+use Chirickello\Package\Event\TaskAssigned\TaskAssigned;
 use Chirickello\Package\Timer\TimerInterface;
 use Chirickello\TaskTracker\Entity\Task;
 use Chirickello\TaskTracker\Repo\Paginator;
@@ -54,6 +55,7 @@ class TasksShuffleHandler implements RequestHandlerInterface
 
         $filter = new TaskFilter();
         $filter->isCompleted = false;
+        $filter->reverse = false;
         $page = 1;
         do {
             $paginator = new Paginator($page, 1);
@@ -69,6 +71,10 @@ class TasksShuffleHandler implements RequestHandlerInterface
         return $response;
     }
 
+    /**
+     * @return array
+     * @throws Exception
+     */
     private function getDeveloperIds(): array
     {
         $ids = [];
@@ -86,7 +92,8 @@ class TasksShuffleHandler implements RequestHandlerInterface
     {
         $task->assign($userId);
         if ($task->isAssignedToChanged()) {
-            // todo send event `task.assigned`
+            $event = new TaskAssigned($task->getId(), $task->getAssignedTo(), $this->timer->now());
+            $this->eventDispatcher->dispatch($event);
         }
         $this->taskRepo->save($task);
     }

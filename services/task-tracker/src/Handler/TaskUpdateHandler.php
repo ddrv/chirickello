@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chirickello\TaskTracker\Handler;
 
+use Chirickello\Package\Event\TaskCompleted\TaskCompleted;
 use Chirickello\Package\Timer\TimerInterface;
 use Chirickello\TaskTracker\Exception\TaskNotFoundException;
 use Chirickello\TaskTracker\Repo\TaskRepo\TaskRepo;
@@ -80,7 +81,13 @@ class TaskUpdateHandler implements RequestHandlerInterface
         }
         $task->complete();
         $this->taskRepo->save($task);
-        // todo send event `task.completed`
+        $event = new TaskCompleted(
+            $task->getId(),
+            $task->getAssignedTo(),
+            $task->getDescription(),
+            $this->timer->now()
+        );
+        $this->eventDispatcher->dispatch($event);
 
         $view = $this->transformer->transform([$task])[0];
 

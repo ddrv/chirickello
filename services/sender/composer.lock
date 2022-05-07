@@ -12,7 +12,7 @@
             "dist": {
                 "type": "tar",
                 "url": "http://satis/dist/chirickello/base-event/chirickello-base-event-2fe83d41d436f95ae5b9156c361d7c0f3ca4626e-path.tar",
-                "shasum": "8545c6b68d725e124145fcdb792c78b9b1cac029"
+                "shasum": "5b095db3295325218f5e8c9e8c741afa1abe0f1a"
             },
             "require": {
                 "ext-json": "*",
@@ -31,7 +31,7 @@
             "dist": {
                 "type": "tar",
                 "url": "http://satis/dist/chirickello/consumer/chirickello-consumer-8c67c384a9e5301a560e35707c8354e902512754-path.tar",
-                "shasum": "ab4a3bceb5ca3128a716e18f89713e0963e4811b"
+                "shasum": "d8047cdcbfdab422146ebebc40c72ec37bfead5e"
             },
             "require": {
                 "php": ">=7.4"
@@ -49,7 +49,7 @@
             "dist": {
                 "type": "tar",
                 "url": "http://satis/dist/chirickello/consumer-rabbitmq/chirickello-consumer-rabbitmq-3a2685037d62a042dcd845e475640cd954a20ee8-path.tar",
-                "shasum": "69bfd764bf7bfa62dfd190317d57805795713242"
+                "shasum": "c02b7f9217f56c84cc32f7241c9c37e21f6875a9"
             },
             "require": {
                 "chirickello/consumer": "^1.0",
@@ -69,7 +69,7 @@
             "dist": {
                 "type": "tar",
                 "url": "http://satis/dist/chirickello/event-salary-paid/chirickello-event-salary-paid-3afdfdce8df56288d704d112dd842885347686c4-path.tar",
-                "shasum": "d1fc42dbedc7c2bfe3bfc0cb2ef13a74e430b4a7"
+                "shasum": "39cae66c60096af143787412856a85d36fedb00a"
             },
             "require": {
                 "chirickello/base-event": "^1.0",
@@ -89,7 +89,7 @@
             "dist": {
                 "type": "tar",
                 "url": "http://satis/dist/chirickello/event-user-added/chirickello-event-user-added-4f9b4353ff9702382f8b279d37e8abcf08b6cbc7-path.tar",
-                "shasum": "dbf7ad3660cbf9db0855e64274509a8994893f13"
+                "shasum": "303ee2de56d81d374796ead6e8b4fd73811911be"
             },
             "require": {
                 "chirickello/base-event": "^1.0",

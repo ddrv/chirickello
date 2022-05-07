@@ -1,0 +1,11 @@
+[program:user-sync]
+command=php APP_ROOT/bin/consumer.php user-cud
+autostart=true
+autorestart=true
+startretries=1000
+
+[program:roles-sync]
+command=php APP_ROOT/bin/consumer.php user
+autostart=true
+autorestart=true
+startretries=1000

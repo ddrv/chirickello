@@ -79,13 +79,13 @@ class UserService
     private function create(User $user): void
     {
         $this->userRepo->save($user);
-//        $userCreatedEvent = new UserAdded(
-//            $user->getId(),
-//            $user->getLogin(),
-//            $user->getEmail()
-//        );
-//        $this->eventDispatcher->dispatch($userCreatedEvent);
-//        $this->handleUpdatedRoles($user->getId(), $user->getRoles());
+        $userCreatedEvent = new UserAdded(
+            $user->getId(),
+            $user->getLogin(),
+            $user->getEmail()
+        );
+        $this->eventDispatcher->dispatch($userCreatedEvent);
+        $this->handleUpdatedRoles($user->getId(), $user->getRoles());
     }
 
     /**
@@ -102,9 +102,9 @@ class UserService
 
         $this->userRepo->save($user);
 
-//        if (!is_null($newRoles)) {
-//            $this->handleUpdatedRoles($id, $newRoles);
-//        }
+        if (!is_null($newRoles)) {
+            $this->handleUpdatedRoles($id, $newRoles);
+        }
     }
 
     private function handleUpdatedRoles(string $id, array $roles): void

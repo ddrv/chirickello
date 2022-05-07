@@ -84,7 +84,10 @@ class TaskCreateHandler implements RequestHandlerInterface
         // todo send event `task.assigned`
         $view = $this->transformer->transform([$task])[0];
 
-        $response = $this->responseFactory->createResponse()->withHeader('content-type', ['application/json']);
+        $response = $this->responseFactory
+            ->createResponse(201)
+            ->withHeader('content-type', ['application/json'])
+        ;
         $response->getBody()->write(json_encode($view));
         return $response;
     }

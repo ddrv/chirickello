@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Chirickello\Sender\Consumer;
+namespace Chirickello\TaskTracker\Consumer;
 
 use Chirickello\Package\Consumer\RabbitMQ\AbstractConsumer;
 use Chirickello\Package\Event\UserAdded\UserAdded;

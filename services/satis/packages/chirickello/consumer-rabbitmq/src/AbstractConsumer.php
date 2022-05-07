@@ -6,6 +6,7 @@ namespace Chirickello\Package\Consumer\RabbitMQ;
 
 use Chirickello\Package\Consumer\ConsumerInterface;
 use Closure;
+use ErrorException;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Exchange\AMQPExchangeType;
@@ -66,7 +67,17 @@ abstract class AbstractConsumer implements ConsumerInterface
             Closure::fromCallable([$this, 'processMessage'])
         );
 
-        $channel->consume();
+        $attempt = 1;
+        do {
+            try {
+                $channel->consume();
+                $ok = true;
+            } catch (ErrorException $e) {
+                $ok = false;
+                $attempt++;
+                sleep(5);
+            }
+        } while (!$ok && $attempt < 10);
     }
 
     /**

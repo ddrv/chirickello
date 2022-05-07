@@ -78,53 +78,37 @@ class UserPdoRepo implements UserRepo
     {
         $this->db->beginTransaction();
         try {
-            $sql = 'SELECT * FROM users WHERE id = ?;';
-            $st = $this->db->prepare($sql);
-            $st->execute([$user->getId()]);
-            $row = $st->fetch();
-            if (empty($row)) {
-                $this->create($user);
-            } else {
-                $this->update($user, $row);
+            $fields = ['id'];
+            $set = [];
+            $params = ['id' => $user->getId()];
+            $login = $user->getLogin();
+            if (!is_null($login)) {
+                $fields[] = 'login';
+                $set[] =  'login = :login';
+                $params['login'] = $login;
             }
+            $roles = $user->getRoles();
+            if (!empty($roles)) {
+                $fields[] = 'roles';
+                $set[] =  'roles = :roles';
+                $params['roles'] = ',' . implode(',', $roles) . ',';
+            }
+
+            if (empty($set)) {
+                $this->db->commit();
+                return;
+            }
+            $sql = 'INSERT INTO users (' . implode(', ', $fields) . ') VALUES(:' . implode(', :', $fields) . ')'
+                . ' ON CONFLICT (id) DO UPDATE SET ' . implode(', ', $set) . ' WHERE id = :id;'
+            ;
+
+            $st = $this->db->prepare($sql);
+            $st->execute($params);
             $this->db->commit();
         } catch (Throwable $exception) {
             $this->db->rollBack();
             throw new StorageException('storage error', 0, $exception);
         }
-    }
-
-    private function create(User $user): void
-    {
-        $sql = 'INSERT INTO users (id, login, roles) VALUES (?, ?, ?);';
-        $st = $this->db->prepare($sql);
-        $st->execute([
-            $user->getId(),
-            $user->getLogin(),
-            ',' . implode(',', $user->getRoles()) . ','
-        ]);
-    }
-
-    private function update(User $user, array $original): void
-    {
-        $set = [];
-        $params = [];
-        if ($user->getLogin() !== $original['login']) {
-            $set[] = 'login = ?';
-            $params[] = $user->getLogin();
-        }
-        $roles = ',' . implode(',', $user->getRoles()) . ',';
-        if ($roles !== $original['roles']) {
-            $set[] = 'roles = ?';
-            $params[] = $roles;
-        }
-        if (empty($set)) {
-            return;
-        }
-        $sql = 'UPDATE users SET ' . (implode(', ', $set)) . ' WHERE id = ?;';
-        $params[] = $user->getId();
-        $st = $this->db->prepare($sql);
-        $st->execute($params);
     }
 
     private function hydrateUser(array $row): User
@@ -136,7 +120,7 @@ class UserPdoRepo implements UserRepo
 
         return new User(
             (string)$row['id'],
-            empty(trim($row['login'])) ? null : (string)$row['login'],
+            empty(trim((string)$row['login'])) ? null : (string)$row['login'],
             empty($roles) ? null : $roles
         );
     }

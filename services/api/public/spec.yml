@@ -16,7 +16,7 @@ tags:
   - name: dashboard
     description: Dashboard
 paths:
-  /tasks:
+  /dashboard/tasks:
     get:
       operationId: getAllowedTasks
       security:
@@ -65,8 +65,10 @@ paths:
         403:
           $ref: '#/components/responses/forbidden'
         422:
-          $ref: '#/components/responses/inputErrors'
-  /tasks/{id}:
+          $ref: '#/components/responses/formErrors'
+        500:
+          $ref: '#/components/responses/serverError'
+  /dashboard/tasks/{id}:
     parameters:
       - name: id
         in: path
@@ -117,7 +119,7 @@ paths:
           $ref: '#/components/responses/forbidden'
         404:
           $ref: '#/components/responses/notFound'
-  /processes/tasks_shuffle:
+  /dashboard/processes/tasks_shuffle:
     post:
       operationId: shuffleTask
       security:
@@ -135,33 +137,8 @@ paths:
           $ref: '#/components/responses/needAuthorization'
         403:
           $ref: '#/components/responses/forbidden'
-  /balance/{id}:
-    parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
-    get:
-      operationId: getTask
-      security:
-        - oauth2: [ tasks ]
-      tags:
-        - dashboard
-      responses:
-        200:
-          description: task
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/task'
-        401:
-          $ref: '#/components/responses/needAuthorization'
-        403:
-          $ref: '#/components/responses/forbidden'
-        404:
-          $ref: '#/components/responses/notFound'
+        500:
+          $ref: '#/components/responses/serverError'
 components:
   securitySchemes:
     oauth2:
@@ -193,32 +170,42 @@ components:
   responses:
     needAuthorization:
       description: need authorization
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/pageError"
     forbidden:
       description: forbidden
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/pageError"
     notFound:
       description: not found
-    inputErrors:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/pageError"
+    formErrors:
       description: form errors
       content:
         application/json:
           schema:
-            type: object
-            additionalProperties:
-              type: array
-              items:
-                type: string
-                maxLength: 1
-                description: Message error
-                example: field required
-              uniqueItems: true
-            minProperties: 1
-
-
+            $ref: "#/components/schemas/formErrors"
+    serverError:
+      description: serverError
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/pageError"
   schemas:
     login:
       type: string
-      pattern: ^[a-z0-9]{1,32}$
+      pattern: ^([a-z0-9]{1,32}|_unknown_)$
       example: parrot-1
+    userId:
+      type: string
+      format: uuid
     taskId:
       type: string
       format: uuid
@@ -227,6 +214,15 @@ components:
       minLength: 1
       maxLength: 1000
       example: Выклевать клавишу R
+    user:
+      type: object
+      required: [id, login]
+      properties:
+        id:
+          $ref: '#/components/schemas/userId'
+        login:
+          $ref: '#/components/schemas/login'
+      additionalProperties: false
     taskInput:
       type: object
       required: [description]
@@ -256,17 +252,25 @@ components:
           $ref: '#/components/schemas/taskId'
         description:
           $ref: '#/components/schemas/taskDescription'
-        assigned:
-          $ref: '#/components/schemas/login'
-        isCompleted:
-          type: boolean
+        assignedTo:
+          $ref: '#/components/schemas/user'
+        author:
+          $ref: '#/components/schemas/user'
+        status:
+          type: string
+          enum:
+            - progress
+            - completed
+        createdAt:
+          type: string
+          format: date-time
     pager:
       type: object
-      required: [pagesCount]
+      required: [pages]
       properties:
-        pagesCount:
+        pages:
           type: integer
-          minimum: 0
+          minimum: 1
     taskList:
       type: object
       required: [tasks]
@@ -279,30 +283,25 @@ components:
       allOf:
         - "$ref": '#/components/schemas/taskList'
         - "$ref": '#/components/schemas/pager'
-    financeOperation:
+    formError:
       type: object
       properties:
-        type:
+        field:
           type: string
-          enum: [payment, write-off]
-        amount:
-          type: number
-          minimum: 0
-          exclusiveMinimum: true
-        comment:
+        message:
           type: string
           minLength: 1
-        time:
-          type: string
-          format: date-time
-    auditLog:
+    formErrors:
+      type: array
+      items:
+        $ref: "#/components/schemas/formError"
+      minItems: 1
+    pageError:
       type: object
-      required: [properties]
       properties:
-        operations:
-          type: array
-          items:
-            $ref: '#/components/schemas/financeOperation'
+        message:
+          type: string
+          minLength: 1
     result:
       type: object
       required: [success]

@@ -73,6 +73,18 @@ if [ -f ./rr-worker.php ]; then
   if [ ${OAUTH_CLIENT_REDIRECT} ]; then
     echo "    OAUTH_CLIENT_REDIRECT: \"${OAUTH_CLIENT_REDIRECT}\"" >> ./.rr.yaml
   fi
+  if [ ${AUTH_HOST} ]; then
+    echo "    AUTH_HOST: \"${AUTH_HOST}\"" >> ./.rr.yaml
+  fi
+  if [ ${RABBIT_MQ_DSN} ]; then
+    echo "    RABBIT_MQ_DSN: \"${RABBIT_MQ_DSN}\"" >> ./.rr.yaml
+  fi
+  if [ ${TIMER_SPEED} ]; then
+    echo "    TIMER_SPEED: \"${TIMER_SPEED}\"" >> ./.rr.yaml
+  fi
+  if [ ${TIMER_BEGIN} ]; then
+    echo "    TIMER_BEGIN: \"${TIMER_BEGIN}\"" >> ./.rr.yaml
+  fi
   echo "" >> ./.rr.yaml
 fi
 

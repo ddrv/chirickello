@@ -27,12 +27,13 @@ class MeEndpoint implements RequestHandlerInterface
         /** @var string[] $scope */
         $scope = $request->getAttribute('__scope__');
 
-        $response = $this->responseFactory->createResponse(401)
+        $response = $this->responseFactory->createResponse()
             ->withHeader('Content-Type', ['application/json'])
         ;
 
         $body = $response->getBody();
         $body->write(json_encode([
+            'id'    => $user->getId(),
             'login' => $user->getLogin(),
             'roles' => $user->getRoles(),
             'scope' => $scope,

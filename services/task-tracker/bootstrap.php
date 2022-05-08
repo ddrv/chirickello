@@ -196,7 +196,10 @@ $container->service(TasksListHandler::class, function (ContainerInterface $conta
 $container->service(TasksShuffleHandler::class, function (ContainerInterface $container) {
     return new TasksShuffleHandler(
         $container->get(ResponseFactoryInterface::class),
-        $container->get(EventDispatcherInterface::class)
+        $container->get(EventDispatcherInterface::class),
+        $container->get(TimerInterface::class),
+        $container->get(TaskRepo::class),
+        $container->get(UserRepo::class)
     );
 });
 $container->service(TaskUpdateHandler::class, function (ContainerInterface $container) {
@@ -239,7 +242,7 @@ $container->service(RouteCollector::class, function (ContainerInterface $contain
         });
 
         $router->group('', function (RouteCollectorProxyInterface $router) {
-            $router->patch('/processes/tasks_shuffle', TasksShuffleHandler::class)->setName('process.shuffle');
+            $router->post('/processes/tasks_shuffle', TasksShuffleHandler::class)->setName('process.shuffle');
         })->addMiddleware($mwRoleFactory->make(['admin']));
     })
         ->add(SaveUser::class)

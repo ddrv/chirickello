@@ -22,12 +22,14 @@ class ForcedTimer implements TimerInterface
      */
     public function now(): DateTimeImmutable
     {
-        if ($this->speed === 1) {
+        $now = time();
+        if ($this->speed === 1 || $this->begin->getTimestamp() > $now) {
             return new DateTimeImmutable();
         }
         $start = $this->begin->getTimestamp();
-        $seconds = time() - $start;
-        $timestamp = $start + ($seconds * $this->speed);
+        $seconds = $now - $start;
+        $micro = (int)((microtime(true) - $now) * $this->speed);
+        $timestamp = $start + ($seconds * $this->speed) + $micro;
         return DateTimeImmutable::createFromFormat('U', (string)$timestamp);
     }
 }

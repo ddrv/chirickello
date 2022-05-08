@@ -122,6 +122,8 @@ services:
       - "DEBUG=${DEBUG}"
       - "RABBITMQ_DSN=${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672"
       - "AUTH_HOST=http://auth"
+      - "TIMER_SPEED=${TIMER_SPEED}"
+      - "TIMER_BEGIN=${TIMER_BEGIN}"
     depends_on:
       - auth
       - rabbitmq

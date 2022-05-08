@@ -12,7 +12,7 @@
             "dist": {
                 "type": "tar",
                 "url": "http://satis/dist/chirickello/base-event/chirickello-base-event-2fe83d41d436f95ae5b9156c361d7c0f3ca4626e-path.tar",
-                "shasum": "5e2cd75b88e612d4bb402325fa09d54cef959ad5"
+                "shasum": "8c23509ea8ba6eee4e65fb47568448358692cca5"
             },
             "require": {
                 "ext-json": "*",
@@ -31,7 +31,7 @@
             "dist": {
                 "type": "tar",
                 "url": "http://satis/dist/chirickello/event-user-added/chirickello-event-user-added-4f9b4353ff9702382f8b279d37e8abcf08b6cbc7-path.tar",
-                "shasum": "c5cc9a7c340df3de6270a0b14c8bc72b276a8ec7"
+                "shasum": "3432f47b2b43b4f82e8a335031d65035389ba1c1"
             },
             "require": {
                 "chirickello/base-event": "^1.0",
@@ -51,7 +51,7 @@
             "dist": {
                 "type": "tar",
                 "url": "http://satis/dist/chirickello/event-user-roles-assigned/chirickello-event-user-roles-assigned-5aa90474e3ddb4318a6c63aa5333d65be6da21af-path.tar",
-                "shasum": "c15c94857481396ccec774cd822d8efef9c8388c"
+                "shasum": "ac7bedc103ea50b76a648cfb18d37115a53ae7b1"
             },
             "require": {
                 "chirickello/base-event": "^1.0",
@@ -71,7 +71,7 @@
             "dist": {
                 "type": "tar",
                 "url": "http://satis/dist/chirickello/listener-produce-event/chirickello-listener-produce-event-08a9e90fea3b18e67716be0b255fcecfca55cb5d-path.tar",
-                "shasum": "75b0e0288afc888e344d3b17eaebd198775a83c9"
+                "shasum": "19a90c54e9a4ae27502f5694488cf5d24e4700ae"
             },
             "require": {
                 "chirickello/producer": "^1.0",
@@ -90,7 +90,7 @@
             "dist": {
                 "type": "tar",
                 "url": "http://satis/dist/chirickello/producer/chirickello-producer-32c3fafedbb2618d4bbfbaec4aae46df59573beb-path.tar",
-                "shasum": "a588b53ba95862eda05064b376679a0f7c59f30d"
+                "shasum": "8f0809958b98dfd7559d66c6c010dee22bf7da0e"
             },
             "require": {
                 "chirickello/base-event": "^1.0",
@@ -109,7 +109,7 @@
             "dist": {
                 "type": "tar",
                 "url": "http://satis/dist/chirickello/producer-rabbitmq/chirickello-producer-rabbitmq-70aebd4cd3184b4880bae946c9263d192604e284-path.tar",
-                "shasum": "01c82ee4549a8e7ccc72e8d73a49f3c90d0ff1a4"
+                "shasum": "70d59db2515cf5fb930c292b00cd43c8eaf5e27d"
             },
             "require": {
                 "chirickello/producer": "^1.0",

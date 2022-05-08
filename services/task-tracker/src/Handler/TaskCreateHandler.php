@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Chirickello\TaskTracker\Handler;
 
+use Chirickello\Package\Event\TaskAssigned\TaskAssigned;
 use Chirickello\Package\Timer\TimerInterface;
 use Chirickello\TaskTracker\Entity\Task;
 use Chirickello\TaskTracker\Repo\TaskRepo\TaskRepo;
@@ -81,7 +82,10 @@ class TaskCreateHandler implements RequestHandlerInterface
         );
 
         $this->taskRepo->save($task);
-        // todo send event `task.assigned`
+
+        $event = new TaskAssigned($task->getId(), $task->getAssignedTo(), $this->timer->now());
+        $this->eventDispatcher->dispatch($event);
+
         $view = $this->transformer->transform([$task])[0];
 
         $response = $this->responseFactory

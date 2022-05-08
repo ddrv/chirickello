@@ -2,16 +2,6 @@
 
 set -e
 
-# install depends
-if [ ${DEBUG} ]; then
-  if [ -d ./vendor ]; then
-    rm -rf ./vendor
-  fi
-  if [ -f ./composer.lock ]; then
-    rm ./composer.lock
-  fi
-fi
-
 composer install -q
 
 # init project

@@ -113,7 +113,7 @@ class UserPdoRepo implements UserRepo
 
     private function hydrateUser(array $row): User
     {
-        $roles = explode(',', $row['roles']);
+        $roles = explode(',', $row['roles'] ?? ',,');
         array_shift($roles);
         array_pop($roles);
         $roles = array_unique($roles);

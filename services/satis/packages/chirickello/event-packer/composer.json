@@ -1,0 +1,15 @@
+{
+  "name": "chirickello/event-packer",
+  "type": "library",
+  "version": "1.0.0",
+  "require": {
+    "php": ">=7.4",
+    "chirickello/event": "^1.0",
+    "chirickello/event-schema-registry": "^1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Chirickello\\Package\\EventPacker\\": "src/"
+    }
+  }
+}

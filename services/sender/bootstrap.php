@@ -5,6 +5,8 @@ declare(strict_types=1);
 use Chirickello\Package\Consumer\ConsumerInterface;
 use Chirickello\Package\Event\SalaryPaid\SalaryPaid;
 use Chirickello\Package\Event\UserAdded\UserAdded;
+use Chirickello\Package\EventPacker\EventPacker;
+use Chirickello\Package\EventSchemaRegistry\EventSchemaRegistry;
 use Chirickello\Sender\Consumer\Consumer;
 use Chirickello\Sender\Listener\SendDailySalaryReportListener;
 use Chirickello\Sender\Listener\SetMailSender;
@@ -110,10 +112,21 @@ $container->service(Mailer::class, function (ContainerInterface $container) {
     return new Mailer($container->get(TransportInterface::class));
 });
 
+$container->service(EventSchemaRegistry::class, function () {
+    return new EventSchemaRegistry();
+});
+
+$container->service(EventPacker::class, function (ContainerInterface $container) {
+    return new EventPacker(
+        $container->get(EventSchemaRegistry::class)
+    );
+});
+
 $container->service(Consumer::class, function (ContainerInterface $container) {
     /** @var Env $env */
     $env = $container->get(Env::class);
     return new Consumer(
+        $container->get(EventPacker::class),
         $container->get(EventDispatcherInterface::class),
         $env->get('RABBITMQ_DSN')
     );

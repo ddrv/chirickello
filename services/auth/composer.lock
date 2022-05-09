@@ -4,15 +4,15 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "debcca544fa813b71293615107e5cb41",
+    "content-hash": "4ade1977389cda01003e356cf819a978",
     "packages": [
         {
-            "name": "chirickello/base-event",
+            "name": "chirickello/event",
             "version": "1.0.0",
             "dist": {
                 "type": "tar",
-                "url": "http://satis/dist/chirickello/base-event/chirickello-base-event-2fe83d41d436f95ae5b9156c361d7c0f3ca4626e-path.tar",
-                "shasum": "8c23509ea8ba6eee4e65fb47568448358692cca5"
+                "url": "http://satis/dist/chirickello/event/chirickello-event-e6ee07c10a64027fc398f272a5770084526cad3f-path.tar",
+                "shasum": "08eba903996d566dd2f432b0d1d91a12a9bee726"
             },
             "require": {
                 "ext-json": "*",
@@ -21,47 +21,46 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Chirickello\\Package\\Event\\BaseEvent\\": "src/"
+                    "Chirickello\\Package\\Event\\": "src/"
                 }
             }
         },
         {
-            "name": "chirickello/event-user-added",
+            "name": "chirickello/event-packer",
             "version": "1.0.0",
             "dist": {
                 "type": "tar",
-                "url": "http://satis/dist/chirickello/event-user-added/chirickello-event-user-added-4f9b4353ff9702382f8b279d37e8abcf08b6cbc7-path.tar",
-                "shasum": "3432f47b2b43b4f82e8a335031d65035389ba1c1"
+                "url": "http://satis/dist/chirickello/event-packer/chirickello-event-packer-27ea039b442265ef9cc2a826f207f9f3d807d637-path.tar",
+                "shasum": "e268fe46b2d3d154425ed6ea409a5089a4a8e192"
             },
             "require": {
-                "chirickello/base-event": "^1.0",
-                "ext-json": "*",
+                "chirickello/event": "^1.0",
+                "chirickello/event-schema-registry": "^1.0",
                 "php": ">=7.4"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Chirickello\\Package\\Event\\UserAdded\\": "src/"
+                    "Chirickello\\Package\\EventPacker\\": "src/"
                 }
             }
         },
         {
-            "name": "chirickello/event-user-roles-assigned",
+            "name": "chirickello/event-schema-registry",
             "version": "1.0.0",
             "dist": {
                 "type": "tar",
-                "url": "http://satis/dist/chirickello/event-user-roles-assigned/chirickello-event-user-roles-assigned-5aa90474e3ddb4318a6c63aa5333d65be6da21af-path.tar",
-                "shasum": "ac7bedc103ea50b76a648cfb18d37115a53ae7b1"
+                "url": "http://satis/dist/chirickello/event-schema-registry/chirickello-event-schema-registry-fafbc0f7588108e2d79a3cfcb6cd57326d3a7166-path.tar",
+                "shasum": "81330144fd9ec04250abf356a8c7481720732bab"
             },
             "require": {
-                "chirickello/base-event": "^1.0",
-                "ext-json": "*",
+                "justinrainbow/json-schema": "^5.2",
                 "php": ">=7.4"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Chirickello\\Package\\Event\\UserRolesAssigned\\": "src/"
+                    "Chirickello\\Package\\EventSchemaRegistry\\": "src/"
                 }
             }
         },
@@ -71,7 +70,7 @@
             "dist": {
                 "type": "tar",
                 "url": "http://satis/dist/chirickello/listener-produce-event/chirickello-listener-produce-event-08a9e90fea3b18e67716be0b255fcecfca55cb5d-path.tar",
-                "shasum": "19a90c54e9a4ae27502f5694488cf5d24e4700ae"
+                "shasum": "d1b29872369abd2f1249465ddb9e933870d31afa"
             },
             "require": {
                 "chirickello/producer": "^1.0",
@@ -89,11 +88,11 @@
             "version": "1.0.0",
             "dist": {
                 "type": "tar",
-                "url": "http://satis/dist/chirickello/producer/chirickello-producer-32c3fafedbb2618d4bbfbaec4aae46df59573beb-path.tar",
-                "shasum": "8f0809958b98dfd7559d66c6c010dee22bf7da0e"
+                "url": "http://satis/dist/chirickello/producer/chirickello-producer-ba3f75687da95c81a1214372fba328be140af8f7-path.tar",
+                "shasum": "bffdd55dc315f09f832f8a07b64723df6fe28c56"
             },
             "require": {
-                "chirickello/base-event": "^1.0",
+                "chirickello/event": "^1.0",
                 "php": ">=7.4"
             },
             "type": "library",
@@ -108,10 +107,11 @@
             "version": "1.0.0",
             "dist": {
                 "type": "tar",
-                "url": "http://satis/dist/chirickello/producer-rabbitmq/chirickello-producer-rabbitmq-70aebd4cd3184b4880bae946c9263d192604e284-path.tar",
-                "shasum": "70d59db2515cf5fb930c292b00cd43c8eaf5e27d"
+                "url": "http://satis/dist/chirickello/producer-rabbitmq/chirickello-producer-rabbitmq-cf35c4c9b656b609acb4ac99a5065e71a533f346-path.tar",
+                "shasum": "f6aa51c4ccc0f50d0686d2ec29e6faa6d1c76427"
             },
             "require": {
+                "chirickello/event-packer": "^1.0",
                 "chirickello/producer": "^1.0",
                 "php": ">=7.4",
                 "php-amqplib/php-amqplib": "^3.2"
@@ -308,6 +308,76 @@
                 }
             ],
             "time": "2020-12-14T12:47:39+00:00"
+        },
+        {
+            "name": "justinrainbow/json-schema",
+            "version": "5.2.12",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/justinrainbow/json-schema.git",
+                "reference": "ad87d5a5ca981228e0e205c2bc7dfb8e24559b60"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/justinrainbow/json-schema/zipball/ad87d5a5ca981228e0e205c2bc7dfb8e24559b60",
+                "reference": "ad87d5a5ca981228e0e205c2bc7dfb8e24559b60",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "~2.2.20||~2.15.1",
+                "json-schema/json-schema-test-suite": "1.2.0",
+                "phpunit/phpunit": "^4.8.35"
+            },
+            "bin": [
+                "bin/validate-json"
+            ],
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "5.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "JsonSchema\\": "src/JsonSchema/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Bruno Prieto Reis",
+                    "email": "bruno.p.reis@gmail.com"
+                },
+                {
+                    "name": "Justin Rainbow",
+                    "email": "justin.rainbow@gmail.com"
+                },
+                {
+                    "name": "Igor Wiedler",
+                    "email": "igor@wiedler.ch"
+                },
+                {
+                    "name": "Robert Schönthal",
+                    "email": "seroscho@googlemail.com"
+                }
+            ],
+            "description": "A library to validate a json schema.",
+            "homepage": "https://github.com/justinrainbow/json-schema",
+            "keywords": [
+                "json",
+                "schema"
+            ],
+            "support": {
+                "issues": "https://github.com/justinrainbow/json-schema/issues",
+                "source": "https://github.com/justinrainbow/json-schema/tree/5.2.12"
+            },
+            "time": "2022-04-13T08:02:27+00:00"
         },
         {
             "name": "nikic/fast-route",

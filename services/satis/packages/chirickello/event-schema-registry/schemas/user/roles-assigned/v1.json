@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "user.roles.assigned.v1",
+  "description": "json schema for user roles assigned event (version 1)",
+  "type": "object",
+  "properties": {
+    "event": {
+      "type": "string",
+      "enum": ["user.roles-assigned"]
+    },
+    "version": {
+      "type": "integer",
+      "enum": [1],
+      "default": 1
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["admin", "accountant", "manager", "developer"]
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": ["userId", "roles"]
+    }
+  },
+  "required": ["event", "data"]
+}

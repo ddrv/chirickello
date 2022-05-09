@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "user.added.v1",
+  "description": "json schema for task completed event (version 1)",
+  "type": "object",
+  "properties": {
+    "event": {
+      "type": "string",
+      "enum": ["task.completed"]
+    },
+    "version": {
+      "type": "integer",
+      "enum": [1],
+      "default": 1
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "employeeUserId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "taskDescription": {
+          "type": "string"
+        },
+        "time": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["taskId", "employeeUserId", "taskDescription", "time"]
+    }
+  },
+  "required": ["event", "data"]
+}

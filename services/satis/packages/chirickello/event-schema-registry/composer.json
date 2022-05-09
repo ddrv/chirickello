@@ -1,0 +1,14 @@
+{
+  "name": "chirickello/event-schema-registry",
+  "type": "library",
+  "version": "1.0.0",
+  "require": {
+    "php": ">=7.4",
+    "justinrainbow/json-schema": "^5.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "Chirickello\\Package\\EventSchemaRegistry\\": "src/"
+    }
+  }
+}

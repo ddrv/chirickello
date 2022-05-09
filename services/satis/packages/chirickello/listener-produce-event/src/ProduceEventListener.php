@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Chirickello\Package\Listener\ProduceEventListener;
 
-use Chirickello\Package\Event\BaseEvent\BaseEvent;
+use Chirickello\Package\Event\BaseEvent;
 use Chirickello\Package\Producer\ProducerInterface;
 
 class ProduceEventListener

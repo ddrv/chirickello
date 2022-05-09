@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "user.added.v1",
+  "description": "json schema for salary paid event (version 1)",
+  "type": "object",
+  "properties": {
+    "event": {
+      "type": "string",
+      "enum": ["salary.paid"]
+    },
+    "version": {
+      "type": "integer",
+      "enum": [1],
+      "default": 1
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "amount": {
+          "type": "number",
+          "minimum": 0,
+          "exclusiveMinimum": true
+        },
+        "time": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["userId", "amount", "time"]
+    }
+  },
+  "required": ["event", "data"]
+}

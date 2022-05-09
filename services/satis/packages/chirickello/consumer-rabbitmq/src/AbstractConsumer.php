@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Chirickello\Package\Consumer\RabbitMQ;
 
 use Chirickello\Package\Consumer\ConsumerInterface;
+use Chirickello\Package\Event\BaseEvent;
+use Chirickello\Package\EventPacker\EventPacker;
 use Closure;
 use ErrorException;
 use PhpAmqpLib\Channel\AMQPChannel;
@@ -15,6 +17,7 @@ use Throwable;
 
 abstract class AbstractConsumer implements ConsumerInterface
 {
+    private EventPacker $packer;
     private ?AMQPChannel $channel = null;
     private ?AMQPStreamConnection $connection = null;
     private string $host;
@@ -23,8 +26,9 @@ abstract class AbstractConsumer implements ConsumerInterface
     private string $password;
     private string $consumerTag;
 
-    public function __construct(string $dsn, string $consumerTag)
+    public function __construct(EventPacker $packer, string $dsn, string $consumerTag)
     {
+        $this->packer = $packer;
         $parts = parse_url('tcp://' . $dsn);
         $this->host = $parts['host'];
         $this->port = $parts['port'];
@@ -87,9 +91,10 @@ abstract class AbstractConsumer implements ConsumerInterface
     private function processMessage(AMQPMessage $message): void
     {
         try {
-            $this->handleMessage($message->body);
+            $event = $this->packer->unpack($message->body);
+            $this->handleEvent($event);
         } catch (Throwable $exception) {
-            $this->handleException($exception);
+            $this->handleException($exception, $message->body);
         }
         $message->ack();
 
@@ -99,13 +104,13 @@ abstract class AbstractConsumer implements ConsumerInterface
     }
 
     /**
-     * @param string $message
+     * @param BaseEvent $event
      * @return void
      * @throws Throwable
      */
-    abstract protected function handleMessage(string $message): void;
+    abstract protected function handleEvent(BaseEvent $event): void;
 
-    protected function handleException(Throwable $exception): void
+    protected function handleException(Throwable $exception, string $message): void
     {
     }
 

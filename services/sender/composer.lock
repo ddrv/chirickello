@@ -4,34 +4,15 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "eff40d03139a6ac4b83dcf495e2fe163",
+    "content-hash": "9466bfe34666c11bd99805d3fc13e3c9",
     "packages": [
-        {
-            "name": "chirickello/base-event",
-            "version": "1.0.0",
-            "dist": {
-                "type": "tar",
-                "url": "http://satis/dist/chirickello/base-event/chirickello-base-event-2fe83d41d436f95ae5b9156c361d7c0f3ca4626e-path.tar",
-                "shasum": "8c23509ea8ba6eee4e65fb47568448358692cca5"
-            },
-            "require": {
-                "ext-json": "*",
-                "php": ">=7.4"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Chirickello\\Package\\Event\\BaseEvent\\": "src/"
-                }
-            }
-        },
         {
             "name": "chirickello/consumer",
             "version": "1.0.0",
             "dist": {
                 "type": "tar",
                 "url": "http://satis/dist/chirickello/consumer/chirickello-consumer-8c67c384a9e5301a560e35707c8354e902512754-path.tar",
-                "shasum": "ac70cfc187406521ea1f271b2d31b6a4e915eb32"
+                "shasum": "0f42b6db176dab0a8f1aa37a4e677a8de832f9cd"
             },
             "require": {
                 "php": ">=7.4"
@@ -48,11 +29,13 @@
             "version": "1.0.0",
             "dist": {
                 "type": "tar",
-                "url": "http://satis/dist/chirickello/consumer-rabbitmq/chirickello-consumer-rabbitmq-3a2685037d62a042dcd845e475640cd954a20ee8-path.tar",
-                "shasum": "d5c9e4c68186da06f850a52c1999d5b89dbd9c69"
+                "url": "http://satis/dist/chirickello/consumer-rabbitmq/chirickello-consumer-rabbitmq-758cdc614e9e39e8210c66a5d77d86c89e85cc73-path.tar",
+                "shasum": "c3b2ef171967feb596fc650f958c5057a4412560"
             },
             "require": {
                 "chirickello/consumer": "^1.0",
+                "chirickello/event": "^1.0",
+                "chirickello/event-packer": "^1.0",
                 "php": ">=7.4",
                 "php-amqplib/php-amqplib": "^3.2"
             },
@@ -64,42 +47,60 @@
             }
         },
         {
-            "name": "chirickello/event-salary-paid",
+            "name": "chirickello/event",
             "version": "1.0.0",
             "dist": {
                 "type": "tar",
-                "url": "http://satis/dist/chirickello/event-salary-paid/chirickello-event-salary-paid-3afdfdce8df56288d704d112dd842885347686c4-path.tar",
-                "shasum": "3e55fe39321b67355ef6d8faa5f2df278bca2a21"
+                "url": "http://satis/dist/chirickello/event/chirickello-event-e6ee07c10a64027fc398f272a5770084526cad3f-path.tar",
+                "shasum": "d3a539ba859231a18264cd6fccb180937a3e51b6"
             },
             "require": {
-                "chirickello/base-event": "^1.0",
                 "ext-json": "*",
                 "php": ">=7.4"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Chirickello\\Package\\Event\\SalaryPaid\\": "src/"
+                    "Chirickello\\Package\\Event\\": "src/"
                 }
             }
         },
         {
-            "name": "chirickello/event-user-added",
+            "name": "chirickello/event-packer",
             "version": "1.0.0",
             "dist": {
                 "type": "tar",
-                "url": "http://satis/dist/chirickello/event-user-added/chirickello-event-user-added-4f9b4353ff9702382f8b279d37e8abcf08b6cbc7-path.tar",
-                "shasum": "3432f47b2b43b4f82e8a335031d65035389ba1c1"
+                "url": "http://satis/dist/chirickello/event-packer/chirickello-event-packer-27ea039b442265ef9cc2a826f207f9f3d807d637-path.tar",
+                "shasum": "146dd036419d908c21cc137ca9e6ed24f2177c33"
             },
             "require": {
-                "chirickello/base-event": "^1.0",
-                "ext-json": "*",
+                "chirickello/event": "^1.0",
+                "chirickello/event-schema-registry": "^1.0",
                 "php": ">=7.4"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Chirickello\\Package\\Event\\UserAdded\\": "src/"
+                    "Chirickello\\Package\\EventPacker\\": "src/"
+                }
+            }
+        },
+        {
+            "name": "chirickello/event-schema-registry",
+            "version": "1.0.0",
+            "dist": {
+                "type": "tar",
+                "url": "http://satis/dist/chirickello/event-schema-registry/chirickello-event-schema-registry-fafbc0f7588108e2d79a3cfcb6cd57326d3a7166-path.tar",
+                "shasum": "b5e40d93466e46e2654f2f6eb1a81c45e8e9d77b"
+            },
+            "require": {
+                "justinrainbow/json-schema": "^5.2",
+                "php": ">=7.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Chirickello\\Package\\EventSchemaRegistry\\": "src/"
                 }
             }
         },
@@ -359,6 +360,76 @@
                 }
             ],
             "time": "2021-10-11T09:18:27+00:00"
+        },
+        {
+            "name": "justinrainbow/json-schema",
+            "version": "5.2.12",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/justinrainbow/json-schema.git",
+                "reference": "ad87d5a5ca981228e0e205c2bc7dfb8e24559b60"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/justinrainbow/json-schema/zipball/ad87d5a5ca981228e0e205c2bc7dfb8e24559b60",
+                "reference": "ad87d5a5ca981228e0e205c2bc7dfb8e24559b60",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "~2.2.20||~2.15.1",
+                "json-schema/json-schema-test-suite": "1.2.0",
+                "phpunit/phpunit": "^4.8.35"
+            },
+            "bin": [
+                "bin/validate-json"
+            ],
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "5.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "JsonSchema\\": "src/JsonSchema/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Bruno Prieto Reis",
+                    "email": "bruno.p.reis@gmail.com"
+                },
+                {
+                    "name": "Justin Rainbow",
+                    "email": "justin.rainbow@gmail.com"
+                },
+                {
+                    "name": "Igor Wiedler",
+                    "email": "igor@wiedler.ch"
+                },
+                {
+                    "name": "Robert Schönthal",
+                    "email": "seroscho@googlemail.com"
+                }
+            ],
+            "description": "A library to validate a json schema.",
+            "homepage": "https://github.com/justinrainbow/json-schema",
+            "keywords": [
+                "json",
+                "schema"
+            ],
+            "support": {
+                "issues": "https://github.com/justinrainbow/json-schema/issues",
+                "source": "https://github.com/justinrainbow/json-schema/tree/5.2.12"
+            },
+            "time": "2022-04-13T08:02:27+00:00"
         },
         {
             "name": "paragonie/constant_time_encoding",

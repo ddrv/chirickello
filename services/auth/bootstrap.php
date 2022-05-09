@@ -13,6 +13,8 @@ use Chirickello\Auth\Repo\UserRepo\UserRepo;
 use Chirickello\Auth\Service\UserService\UserService;
 use Chirickello\Package\Event\UserAdded\UserAdded;
 use Chirickello\Package\Event\UserRolesAssigned\UserRolesAssigned;
+use Chirickello\Package\EventPacker\EventPacker;
+use Chirickello\Package\EventSchemaRegistry\EventSchemaRegistry;
 use Chirickello\Package\Listener\ProduceEventListener\ProduceEventListener;
 use Chirickello\Package\Producer\ProducerInterface;
 use Chirickello\Package\Producer\RabbitMQ\Producer;
@@ -96,10 +98,22 @@ $container->service(Producer::class, function (ContainerInterface $container) {
     /** @var Env $env */
     $env = $container->get(Env::class);
     return new Producer(
+        $container->get(EventPacker::class),
         $env->get('RABBITMQ_DSN')
     );
 });
 $container->bind(ProducerInterface::class, Producer::class);
+
+// EVENT PACKER
+$container->service(EventSchemaRegistry::class, function () {
+    return new EventSchemaRegistry();
+});
+
+$container->service(EventPacker::class, function (ContainerInterface $container) {
+    return new EventPacker(
+        $container->get(EventSchemaRegistry::class)
+    );
+});
 
 // EVENT DISPATCHER
 $container->service(ProduceEventListener::class, function (ContainerInterface $container) {

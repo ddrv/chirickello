@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Chirickello\Package\Producer;
 
-use Chirickello\Package\Event\BaseEvent\BaseEvent;
+use Chirickello\Package\Event\BaseEvent;
 
 interface ProducerInterface
 {

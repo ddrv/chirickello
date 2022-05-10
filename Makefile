@@ -1,5 +1,7 @@
 build:
 	if [ ! -f .env ]; then cp .env.example .env; fi
+	if [ ! -d var/log/app ]; then mkdir -p var/log/app; fi
+	if [ ! -f var/log/app/app.log ]; then touch var/log/app/app.log; fi
 	docker-compose build
 
 start:
@@ -7,6 +9,9 @@ start:
 
 stop:
 	docker-compose stop
+
+log:
+	docker-compose exec task-tracker sh -c "tail -f /var/log/app/app.log"
 
 create-user:
 	docker-compose exec auth sh -c "php /opt/app/bin/create-user.php"
@@ -19,3 +24,6 @@ api-sh:
 
 auth-sh:
 	docker-compose exec auth sh
+
+task-tracker-sh:
+	docker-compose exec task-tracker sh

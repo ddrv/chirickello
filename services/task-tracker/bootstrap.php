@@ -1,6 +1,10 @@
 <?php
 
+use Chirickello\Package\Consumer\ConsumerHandlerInterface;
 use Chirickello\Package\Consumer\ConsumerInterface;
+use Chirickello\Package\Consumer\RabbitMQ\Consumer;
+use Chirickello\Package\ConsumerEventHandler\ConsumerEventHandler;
+use Chirickello\Package\ConsumerLoggedHandler\ConsumerLoggedHandler;
 use Chirickello\Package\Event\TaskAssigned\TaskAssigned;
 use Chirickello\Package\Event\TaskCompleted\TaskCompleted;
 use Chirickello\Package\Event\UserAdded\UserAdded;
@@ -8,6 +12,7 @@ use Chirickello\Package\Event\UserRolesAssigned\UserRolesAssigned;
 use Chirickello\Package\EventPacker\EventPacker;
 use Chirickello\Package\EventSchemaRegistry\EventSchemaRegistry;
 use Chirickello\Package\Listener\ProduceEventListener\ProduceEventListener;
+use Chirickello\Package\LoggerFile\LoggerFile;
 use Chirickello\Package\Middleware\AuthByToken\AuthByTokenMiddleware;
 use Chirickello\Package\Middleware\AuthRequired\AuthRequiredMiddleware;
 use Chirickello\Package\Middleware\RoleAccess\RoleAccessMiddlewareFactory;
@@ -17,7 +22,6 @@ use Chirickello\Package\Producer\RabbitMQ\Producer;
 use Chirickello\Package\Timer\ForcedTimer;
 use Chirickello\Package\Timer\RealTimer;
 use Chirickello\Package\Timer\TimerInterface;
-use Chirickello\TaskTracker\Consumer\Consumer;
 use Chirickello\TaskTracker\Handler\TaskCreateHandler;
 use Chirickello\TaskTracker\Handler\TaskShowHandler;
 use Chirickello\TaskTracker\Handler\TasksListHandler;
@@ -44,6 +48,7 @@ use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\UploadedFileFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
+use Psr\Log\LoggerInterface;
 use Slim\App;
 use Slim\CallableResolver;
 use Slim\Handlers\Strategies\RequestHandler;
@@ -181,17 +186,43 @@ $container->service(TimerInterface::class, function (ContainerInterface $contain
     return new ForcedTimer($begin, $speed);
 });
 
+// LOGGER
+$container->service(LoggerFile::class, function (ContainerInterface $container) {
+    return new LoggerFile(
+        implode(DIRECTORY_SEPARATOR, ['', 'var', 'log', 'app', 'app.log']),
+        'task-tracker',
+        $container->get(TimerInterface::class)
+    );
+});
+$container->bind(LoggerInterface::class, LoggerFile::class);
+
 // CONSUMER
 $container->service(Consumer::class, function (ContainerInterface $container) {
     /** @var Env $env */
     $env = $container->get(Env::class);
     return new Consumer(
-        $container->get(EventPacker::class),
-        $container->get(EventDispatcherInterface::class),
-        $env->get('RABBITMQ_DSN')
+        $env->get('RABBITMQ_DSN'),
+        'task-tracker'
     );
 });
 $container->bind(ConsumerInterface::class, Consumer::class);
+
+$container->service(ConsumerEventHandler::class, function (ContainerInterface $container) {
+    return new ConsumerEventHandler(
+        $container->get(EventPacker::class),
+        $container->get(EventDispatcherInterface::class),
+        [
+            UserAdded::class,
+            UserRolesAssigned::class,
+        ]
+    );
+});
+$container->service(ConsumerHandlerInterface::class, function (ContainerInterface $container) {
+    return new ConsumerLoggedHandler(
+        $container->get(ConsumerEventHandler::class),
+        $container->get(LoggerInterface::class)
+    );
+});
 
 // PRODUCER
 $container->service(Producer::class, function (ContainerInterface $container) {

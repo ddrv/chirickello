@@ -116,6 +116,7 @@ services:
     stdin_open: true
     volumes:
       - ./services/task-tracker:/opt/app
+      - ./var/log/app:/var/log/app
     expose:
       - "80"
     environment:

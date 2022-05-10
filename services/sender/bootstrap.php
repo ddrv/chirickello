@@ -2,12 +2,14 @@
 
 declare(strict_types=1);
 
+use Chirickello\Package\Consumer\ConsumerHandlerInterface;
 use Chirickello\Package\Consumer\ConsumerInterface;
+use Chirickello\Package\Consumer\RabbitMQ\Consumer;
+use Chirickello\Package\ConsumerEventHandler\ConsumerEventHandler;
 use Chirickello\Package\Event\SalaryPaid\SalaryPaid;
 use Chirickello\Package\Event\UserAdded\UserAdded;
 use Chirickello\Package\EventPacker\EventPacker;
 use Chirickello\Package\EventSchemaRegistry\EventSchemaRegistry;
-use Chirickello\Sender\Consumer\Consumer;
 use Chirickello\Sender\Listener\SendDailySalaryReportListener;
 use Chirickello\Sender\Listener\SetMailSender;
 use Chirickello\Sender\Listener\SaveCreatedUserListener;
@@ -126,12 +128,22 @@ $container->service(Consumer::class, function (ContainerInterface $container) {
     /** @var Env $env */
     $env = $container->get(Env::class);
     return new Consumer(
-        $container->get(EventPacker::class),
-        $container->get(EventDispatcherInterface::class),
-        $env->get('RABBITMQ_DSN')
+        $env->get('RABBITMQ_DSN'),
+        'sender'
     );
 });
 $container->bind(ConsumerInterface::class, Consumer::class);
+
+$container->service(ConsumerEventHandler::class, function (ContainerInterface $container) {
+    return new ConsumerEventHandler(
+        $container->get(EventPacker::class),
+        $container->get(EventDispatcherInterface::class),
+        [
+            UserAdded::class,
+        ]
+    );
+});
+$container->bind(ConsumerHandlerInterface::class, ConsumerEventHandler::class);
 
 /** @var EventDispatcher $eventDispatcher */
 $eventDispatcher = $container->get(EventDispatcher::class);

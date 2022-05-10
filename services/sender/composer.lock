@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9466bfe34666c11bd99805d3fc13e3c9",
+    "content-hash": "344802c78fc41952fa35b15d25d42412",
     "packages": [
         {
             "name": "chirickello/consumer",
@@ -12,7 +12,7 @@
             "dist": {
                 "type": "tar",
                 "url": "http://satis/dist/chirickello/consumer/chirickello-consumer-8c67c384a9e5301a560e35707c8354e902512754-path.tar",
-                "shasum": "0f42b6db176dab0a8f1aa37a4e677a8de832f9cd"
+                "shasum": "3853836931d6f364a5c79f28a99136cdd9ecfaaf"
             },
             "require": {
                 "php": ">=7.4"
@@ -25,17 +25,36 @@
             }
         },
         {
-            "name": "chirickello/consumer-rabbitmq",
+            "name": "chirickello/consumer-event-handler",
             "version": "1.0.0",
             "dist": {
                 "type": "tar",
-                "url": "http://satis/dist/chirickello/consumer-rabbitmq/chirickello-consumer-rabbitmq-758cdc614e9e39e8210c66a5d77d86c89e85cc73-path.tar",
-                "shasum": "c3b2ef171967feb596fc650f958c5057a4412560"
+                "url": "http://satis/dist/chirickello/consumer-event-handler/chirickello-consumer-event-handler-4c5e3e6849c9923711507f14c6f78b9e4d03b265-path.tar",
+                "shasum": "208855b4a035a07a1247171d474685d0173badc9"
             },
             "require": {
                 "chirickello/consumer": "^1.0",
                 "chirickello/event": "^1.0",
                 "chirickello/event-packer": "^1.0",
+                "php": ">=7.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Chirickello\\Package\\ConsumerEventHandler\\": "src/"
+                }
+            }
+        },
+        {
+            "name": "chirickello/consumer-rabbitmq",
+            "version": "1.0.0",
+            "dist": {
+                "type": "tar",
+                "url": "http://satis/dist/chirickello/consumer-rabbitmq/chirickello-consumer-rabbitmq-3a2685037d62a042dcd845e475640cd954a20ee8-path.tar",
+                "shasum": "8406d95f9c89677a7a90b5f99121d69da610be15"
+            },
+            "require": {
+                "chirickello/consumer": "^1.0",
                 "php": ">=7.4",
                 "php-amqplib/php-amqplib": "^3.2"
             },
@@ -52,7 +71,7 @@
             "dist": {
                 "type": "tar",
                 "url": "http://satis/dist/chirickello/event/chirickello-event-e6ee07c10a64027fc398f272a5770084526cad3f-path.tar",
-                "shasum": "d3a539ba859231a18264cd6fccb180937a3e51b6"
+                "shasum": "ce5161a51883dbe1d98b26784a08098fc4025b54"
             },
             "require": {
                 "ext-json": "*",
@@ -71,7 +90,7 @@
             "dist": {
                 "type": "tar",
                 "url": "http://satis/dist/chirickello/event-packer/chirickello-event-packer-27ea039b442265ef9cc2a826f207f9f3d807d637-path.tar",
-                "shasum": "146dd036419d908c21cc137ca9e6ed24f2177c33"
+                "shasum": "bc177497b9da89747090a0182a0dde29ca76d94c"
             },
             "require": {
                 "chirickello/event": "^1.0",
@@ -91,7 +110,7 @@
             "dist": {
                 "type": "tar",
                 "url": "http://satis/dist/chirickello/event-schema-registry/chirickello-event-schema-registry-fafbc0f7588108e2d79a3cfcb6cd57326d3a7166-path.tar",
-                "shasum": "b5e40d93466e46e2654f2f6eb1a81c45e8e9d77b"
+                "shasum": "e7da89712459bd27d8727c9d309a4ac913d2b69e"
             },
             "require": {
                 "justinrainbow/json-schema": "^5.2",

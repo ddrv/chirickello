@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "344802c78fc41952fa35b15d25d42412",
+    "content-hash": "98ee1ff288d4adc1ac2fc4a932bfe01a",
     "packages": [
         {
             "name": "chirickello/consumer",
@@ -12,7 +12,7 @@
             "dist": {
                 "type": "tar",
                 "url": "http://satis/dist/chirickello/consumer/chirickello-consumer-8c67c384a9e5301a560e35707c8354e902512754-path.tar",
-                "shasum": "3853836931d6f364a5c79f28a99136cdd9ecfaaf"
+                "shasum": "efa6aba20c37cf07fb009f28ae6ef1ee59a53a90"
             },
             "require": {
                 "php": ">=7.4"
@@ -30,7 +30,7 @@
             "dist": {
                 "type": "tar",
                 "url": "http://satis/dist/chirickello/consumer-event-handler/chirickello-consumer-event-handler-4c5e3e6849c9923711507f14c6f78b9e4d03b265-path.tar",
-                "shasum": "208855b4a035a07a1247171d474685d0173badc9"
+                "shasum": "d89a1b27a014c4874fe840819ccddc3f33ef1d9b"
             },
             "require": {
                 "chirickello/consumer": "^1.0",
@@ -46,12 +46,32 @@
             }
         },
         {
+            "name": "chirickello/consumer-logged-handler",
+            "version": "1.0.0",
+            "dist": {
+                "type": "tar",
+                "url": "http://satis/dist/chirickello/consumer-logged-handler/chirickello-consumer-logged-handler-e9aedc3060fea3b9716d8421df56cdfccbd4f9f3-path.tar",
+                "shasum": "cf4bbce02102762484dcac7f2d7f25c6470537d5"
+            },
+            "require": {
+                "chirickello/consumer": "^1.0",
+                "php": ">=7.4",
+                "psr/log": "^1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Chirickello\\Package\\ConsumerLoggedHandler\\": "src/"
+                }
+            }
+        },
+        {
             "name": "chirickello/consumer-rabbitmq",
             "version": "1.0.0",
             "dist": {
                 "type": "tar",
                 "url": "http://satis/dist/chirickello/consumer-rabbitmq/chirickello-consumer-rabbitmq-3a2685037d62a042dcd845e475640cd954a20ee8-path.tar",
-                "shasum": "8406d95f9c89677a7a90b5f99121d69da610be15"
+                "shasum": "07675347fad3fae06141a0e596a04de9e0714b8a"
             },
             "require": {
                 "chirickello/consumer": "^1.0",
@@ -71,7 +91,7 @@
             "dist": {
                 "type": "tar",
                 "url": "http://satis/dist/chirickello/event/chirickello-event-e6ee07c10a64027fc398f272a5770084526cad3f-path.tar",
-                "shasum": "ce5161a51883dbe1d98b26784a08098fc4025b54"
+                "shasum": "6776d3c7c5f109522110b83a716de6d608d75f4c"
             },
             "require": {
                 "ext-json": "*",
@@ -90,7 +110,7 @@
             "dist": {
                 "type": "tar",
                 "url": "http://satis/dist/chirickello/event-packer/chirickello-event-packer-27ea039b442265ef9cc2a826f207f9f3d807d637-path.tar",
-                "shasum": "bc177497b9da89747090a0182a0dde29ca76d94c"
+                "shasum": "96b1c2e8fcf4288b63f13b0e27069c8e9da85630"
             },
             "require": {
                 "chirickello/event": "^1.0",
@@ -110,7 +130,7 @@
             "dist": {
                 "type": "tar",
                 "url": "http://satis/dist/chirickello/event-schema-registry/chirickello-event-schema-registry-fafbc0f7588108e2d79a3cfcb6cd57326d3a7166-path.tar",
-                "shasum": "e7da89712459bd27d8727c9d309a4ac913d2b69e"
+                "shasum": "a6ea6d3ab88d52a0f79a70d2f072156bf1d8e7c5"
             },
             "require": {
                 "justinrainbow/json-schema": "^5.2",
@@ -120,6 +140,44 @@
             "autoload": {
                 "psr-4": {
                     "Chirickello\\Package\\EventSchemaRegistry\\": "src/"
+                }
+            }
+        },
+        {
+            "name": "chirickello/logger-file",
+            "version": "1.0.0",
+            "dist": {
+                "type": "tar",
+                "url": "http://satis/dist/chirickello/logger-file/chirickello-logger-file-f89f96a59d2712aaa98800706c03fbc4a49c8453-path.tar",
+                "shasum": "73aa2bddf76573baf478787f7e0985b58a8f1017"
+            },
+            "require": {
+                "chirickello/timer": "^1.0",
+                "php": ">=7.4",
+                "psr/log": "^1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Chirickello\\Package\\LoggerFile\\": "src/"
+                }
+            }
+        },
+        {
+            "name": "chirickello/timer",
+            "version": "1.0.0",
+            "dist": {
+                "type": "tar",
+                "url": "http://satis/dist/chirickello/timer/chirickello-timer-3f90a0d63feed4fe27bdd1bdb8cb871ae393c51a-path.tar",
+                "shasum": "129eae779f199ad0149fd8ec62c8219628d94dd1"
+            },
+            "require": {
+                "php": ">=7.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Chirickello\\Package\\Timer\\": "src/"
                 }
             }
         },

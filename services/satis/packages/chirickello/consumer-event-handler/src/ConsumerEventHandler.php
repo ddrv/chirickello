@@ -26,7 +26,7 @@ class ConsumerEventHandler implements ConsumerHandlerInterface
         }
     }
 
-    public function handle(string $message): void
+    public function handle(string $message, string $topic): void
     {
         $event = $this->packer->unpack($message);
         $eventClassName = get_class($event);

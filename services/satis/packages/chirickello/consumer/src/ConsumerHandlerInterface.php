@@ -6,5 +6,5 @@ namespace Chirickello\Package\Consumer;
 
 interface ConsumerHandlerInterface
 {
-    public function handle(string $message): void;
+    public function handle(string $message, string $topic): void;
 }

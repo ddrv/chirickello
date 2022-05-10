@@ -9,6 +9,7 @@ use Chirickello\Package\Consumer\ConsumerInterface;
 use ErrorException;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Exception\AMQPIOException;
 use PhpAmqpLib\Exchange\AMQPExchangeType;
 use PhpAmqpLib\Message\AMQPMessage;
 use Throwable;
@@ -44,9 +45,27 @@ class Consumer implements ConsumerInterface
     private function getConnection(): AMQPStreamConnection
     {
         if (is_null($this->connection)) {
-            $this->connection = new AMQPStreamConnection($this->host, $this->port, $this->user, $this->password);
+            $this->connection = $this->createConnection();
         }
         return $this->connection;
+    }
+
+    private function createConnection(): AMQPStreamConnection
+    {
+        $attempt = 1;
+        $connection = null;
+        while ($attempt < 10) {
+            try {
+                $connection = new AMQPStreamConnection($this->host, $this->port, $this->user, $this->password);
+            } catch (AMQPIOException $exception) {
+            }
+            $attempt++;
+            sleep(5);
+        }
+        if (!is_null($connection)) {
+            return $connection;
+        }
+        throw new \RuntimeException('Can not create connection');
     }
 
     public function consume(string $topic, ConsumerHandlerInterface $handler): void
@@ -64,9 +83,9 @@ class Consumer implements ConsumerInterface
             false,
             false,
             false,
-            function (AMQPMessage $message) use ($handler) {
+            function (AMQPMessage $message) use ($handler, $topic) {
                 try {
-                    $handler->handle($message->body);
+                    $handler->handle($message->body, $topic);
                 } catch (Throwable $exception) {
                 }
                 $message->ack();
@@ -77,17 +96,7 @@ class Consumer implements ConsumerInterface
             }
         );
 
-        $attempt = 1;
-        do {
-            try {
-                $channel->consume();
-                $ok = true;
-            } catch (ErrorException $e) {
-                $ok = false;
-                $attempt++;
-                sleep(5);
-            }
-        } while (!$ok && $attempt < 10);
+        $channel->consume();
     }
 
     public function __destruct()

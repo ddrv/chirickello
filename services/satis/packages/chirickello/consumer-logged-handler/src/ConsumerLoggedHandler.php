@@ -21,14 +21,14 @@ class ConsumerLoggedHandler implements ConsumerHandlerInterface
         $this->logger = $logger;
     }
 
-    public function handle(string $message): void
+    public function handle(string $message, string $topic): void
     {
         $id = uniqid('', true);
-        $this->logger->info($id . ': consuming message ' . $message);
+        $this->logger->info(sprintf('[%s] handling message consumed from %s topic: %s', $id, $topic, $message));
         try {
-            $this->handler->handle($message);
+            $this->handler->handle($message, $topic);
         } catch (Throwable $exception) {
-            $this->logger->info($id . ': consuming error ' . $exception->getMessage());
+            $this->logger->info(sprintf('[%s] handling error: %s', $id, $exception->getMessage()));
             throw $exception;
         }
     }

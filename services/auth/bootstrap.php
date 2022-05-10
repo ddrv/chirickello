@@ -16,8 +16,12 @@ use Chirickello\Package\Event\UserRolesAssigned\UserRolesAssigned;
 use Chirickello\Package\EventPacker\EventPacker;
 use Chirickello\Package\EventSchemaRegistry\EventSchemaRegistry;
 use Chirickello\Package\Listener\ProduceEventListener\ProduceEventListener;
+use Chirickello\Package\LoggerFile\LoggerFile;
 use Chirickello\Package\Producer\ProducerInterface;
 use Chirickello\Package\Producer\RabbitMQ\Producer;
+use Chirickello\Package\Timer\ForcedTimer;
+use Chirickello\Package\Timer\RealTimer;
+use Chirickello\Package\Timer\TimerInterface;
 use Ddrv\Container\Container;
 use Ddrv\Env\Env;
 use Nyholm\Psr7\Factory\Psr17Factory;
@@ -29,6 +33,7 @@ use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\UploadedFileFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
+use Psr\Log\LoggerInterface;
 use Slim\App;
 use Slim\CallableResolver;
 use Slim\Handlers\Strategies\RequestHandler;
@@ -93,12 +98,40 @@ $container->service(Environment::class, function (ContainerInterface $container)
     return new Environment($container->get(LoaderInterface::class), $options);
 });
 
+// TIMER
+$container->service(TimerInterface::class, function (ContainerInterface $container) {
+    /** @var Env $env */
+    $env = $container->get(Env::class);
+    $debug = (bool)((int)$env->get('DEBUG'));
+    $speed = (int)$env->get('TIMER_SPEED');
+    if ($speed === 0) {
+        $speed = 1;
+    }
+    $begin = $env->get('TIMER_BEGIN');
+    if (!preg_match('/[0-9]{4}-[0-9]{2}-[0-9]{2}/u', $begin)) {
+        $debug = false;
+    }
+    if (!$debug || $speed === 1) {
+        return new RealTimer();
+    }
+    return new ForcedTimer($begin, $speed);
+});
+
+// LOGGER
+$container->service(LoggerFile::class, function (ContainerInterface $container) {
+    return new LoggerFile(
+        implode(DIRECTORY_SEPARATOR, ['', 'var', 'log', 'app', 'app.log']),
+        'auth',
+        $container->get(TimerInterface::class)
+    );
+});
+$container->bind(LoggerInterface::class, LoggerFile::class);
+
 // PRODUCER
 $container->service(Producer::class, function (ContainerInterface $container) {
     /** @var Env $env */
     $env = $container->get(Env::class);
     return new Producer(
-        $container->get(EventPacker::class),
         $env->get('RABBITMQ_DSN')
     );
 });
@@ -118,6 +151,8 @@ $container->service(EventPacker::class, function (ContainerInterface $container)
 // EVENT DISPATCHER
 $container->service(ProduceEventListener::class, function (ContainerInterface $container) {
     $listener = new ProduceEventListener(
+        $container->get(LoggerInterface::class),
+        $container->get(EventPacker::class),
         $container->get(ProducerInterface::class)
     );
     $listener->bindEventToTopic(UserAdded::class, 'user-cud');

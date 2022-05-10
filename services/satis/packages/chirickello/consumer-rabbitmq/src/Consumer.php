@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Chirickello\Package\Consumer\RabbitMQ;
 
+use Chirickello\Package\Consumer\ConsumerHandlerInterface;
 use Chirickello\Package\Consumer\ConsumerInterface;
-use Chirickello\Package\Event\BaseEvent;
-use Chirickello\Package\EventPacker\EventPacker;
-use Closure;
 use ErrorException;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
@@ -15,9 +13,8 @@ use PhpAmqpLib\Exchange\AMQPExchangeType;
 use PhpAmqpLib\Message\AMQPMessage;
 use Throwable;
 
-abstract class AbstractConsumer implements ConsumerInterface
+class Consumer implements ConsumerInterface
 {
-    private EventPacker $packer;
     private ?AMQPChannel $channel = null;
     private ?AMQPStreamConnection $connection = null;
     private string $host;
@@ -26,9 +23,8 @@ abstract class AbstractConsumer implements ConsumerInterface
     private string $password;
     private string $consumerTag;
 
-    public function __construct(EventPacker $packer, string $dsn, string $consumerTag)
+    public function __construct(string $dsn, string $consumerTag)
     {
-        $this->packer = $packer;
         $parts = parse_url('tcp://' . $dsn);
         $this->host = $parts['host'];
         $this->port = $parts['port'];
@@ -53,7 +49,7 @@ abstract class AbstractConsumer implements ConsumerInterface
         return $this->connection;
     }
 
-    public function consume(string $topic): void
+    public function consume(string $topic, ConsumerHandlerInterface $handler): void
     {
         $channel = $this->getChannel();
         $channel->exchange_declare($topic, AMQPExchangeType::FANOUT, false, true, false);
@@ -68,7 +64,17 @@ abstract class AbstractConsumer implements ConsumerInterface
             false,
             false,
             false,
-            Closure::fromCallable([$this, 'processMessage'])
+            function (AMQPMessage $message) use ($handler) {
+                try {
+                    $handler->handle($message->body);
+                } catch (Throwable $exception) {
+                }
+                $message->ack();
+
+                if ($message->body === 'quit') {
+                    $message->getChannel()->basic_cancel($message->getConsumerTag());
+                }
+            }
         );
 
         $attempt = 1;
@@ -82,36 +88,6 @@ abstract class AbstractConsumer implements ConsumerInterface
                 sleep(5);
             }
         } while (!$ok && $attempt < 10);
-    }
-
-    /**
-     * @param AMQPMessage $message
-     * @return void
-     */
-    private function processMessage(AMQPMessage $message): void
-    {
-        try {
-            $event = $this->packer->unpack($message->body);
-            $this->handleEvent($event);
-        } catch (Throwable $exception) {
-            $this->handleException($exception, $message->body);
-        }
-        $message->ack();
-
-        if ($message->body === 'quit') {
-            $message->getChannel()->basic_cancel($message->getConsumerTag());
-        }
-    }
-
-    /**
-     * @param BaseEvent $event
-     * @return void
-     * @throws Throwable
-     */
-    abstract protected function handleEvent(BaseEvent $event): void;
-
-    protected function handleException(Throwable $exception, string $message): void
-    {
     }
 
     public function __destruct()

@@ -12,10 +12,4 @@ $consumer = $container->get(ConsumerInterface::class);
 /** @var ConsumerHandlerInterface $handler */
 $handler = $container->get(ConsumerHandlerInterface::class);
 
-$topic = $argv[1] ?? null;
-
-if (!is_string($topic)) {
-    echo 'use php consumer.php {topic}' . PHP_EOL;
-    exit(1);
-}
-$consumer->consume($topic, $handler);
+$handler->handle('{"event":"user.added","data":{"userId":"86f7f517-b723-4006-affe-f53819ce6c5d","login":"popka3","email":"popka3@chirickello.inc"},"version":1}');

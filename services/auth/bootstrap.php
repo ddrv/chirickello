@@ -18,7 +18,7 @@ use Chirickello\Package\EventSchemaRegistry\EventSchemaRegistry;
 use Chirickello\Package\Listener\ProduceEventListener\ProduceEventListener;
 use Chirickello\Package\LoggerFile\LoggerFile;
 use Chirickello\Package\Producer\ProducerInterface;
-use Chirickello\Package\Producer\RabbitMQ\Producer;
+use Chirickello\Package\Producer\Kafka\Producer;
 use Chirickello\Package\Timer\ForcedTimer;
 use Chirickello\Package\Timer\RealTimer;
 use Chirickello\Package\Timer\TimerInterface;
@@ -132,7 +132,7 @@ $container->service(Producer::class, function (ContainerInterface $container) {
     /** @var Env $env */
     $env = $container->get(Env::class);
     return new Producer(
-        $env->get('RABBITMQ_DSN')
+        $env->get('KAFKA_DSN')
     );
 });
 $container->bind(ProducerInterface::class, Producer::class);
@@ -155,8 +155,8 @@ $container->service(ProduceEventListener::class, function (ContainerInterface $c
         $container->get(EventPacker::class),
         $container->get(ProducerInterface::class)
     );
-    $listener->bindEventToTopic(UserAdded::class, 'user-cud');
-    $listener->bindEventToTopic(UserRolesAssigned::class, 'user');
+    $listener->bindEventToTopic(UserAdded::class, 'user-stream');
+    $listener->bindEventToTopic(UserRolesAssigned::class, 'roles');
     return $listener;
 });
 

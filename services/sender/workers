@@ -1,5 +1,5 @@
 [program:user-sync]
-command=php APP_ROOT/bin/consumer.php user-cud
+command=php APP_ROOT/bin/consumer.php user-stream
 
 [program:mailing]
 command=php APP_ROOT/bin/consumer.php notifications

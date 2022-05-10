@@ -17,7 +17,7 @@
     "symfony/event-dispatcher": "^5.4",
     "chirickello/event": "^1.0",
     "chirickello/event-packer": "^1.0",
-    "chirickello/consumer-rabbitmq": "^1.0",
+    "chirickello/consumer-kafka": "^1.0",
     "chirickello/consumer-event-handler": "^1.0",
     "chirickello/consumer-logged-handler": "^1.0",
     "chirickello/logger-file": "^1.0",

@@ -69,6 +69,9 @@ if [ -f ./rr-worker.php ]; then
   if [ ${RABBIT_MQ_DSN} ]; then
     echo "    RABBIT_MQ_DSN: \"${RABBIT_MQ_DSN}\"" >> ./.rr.yaml
   fi
+  if [ ${KAFKA_DSN} ]; then
+    echo "    KAFKA_DSN: \"${KAFKA_DSN}\"" >> ./.rr.yaml
+  fi
   if [ ${TIMER_SPEED} ]; then
     echo "    TIMER_SPEED: \"${TIMER_SPEED}\"" >> ./.rr.yaml
   fi

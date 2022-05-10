@@ -28,7 +28,7 @@ class ConsumerLoggedHandler implements ConsumerHandlerInterface
         try {
             $this->handler->handle($message, $topic);
         } catch (Throwable $exception) {
-            $this->logger->info(sprintf('[%s] handling error: %s', $id, $exception->getMessage()));
+            $this->logger->error(sprintf('[%s] handling error: %s', $id, $exception->getMessage()));
             throw $exception;
         }
     }

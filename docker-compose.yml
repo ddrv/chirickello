@@ -54,6 +54,7 @@ services:
     stdin_open: true
     volumes:
       - ./services/auth:/opt/app
+      - ./var/log/app:/var/log/app
     expose:
       - "80"
     ports:
@@ -64,6 +65,8 @@ services:
       - "OAUTH_CLIENT_ID=${OAUTH_CLIENT_ID}"
       - "OAUTH_CLIENT_SECRET=${OAUTH_CLIENT_SECRET}"
       - "OAUTH_CLIENT_REDIRECT=${OAUTH_CLIENT_REDIRECT}"
+      - "TIMER_SPEED=${TIMER_SPEED}"
+      - "TIMER_BEGIN=${TIMER_BEGIN}"
     depends_on:
       - satis
       - rabbitmq
@@ -73,6 +76,7 @@ services:
     stdin_open: true
     volumes:
       - ./services/accounting:/opt/app
+      - ./var/log/app:/var/log/app
     expose:
       - "80"
     depends_on:
@@ -86,10 +90,13 @@ services:
     stdin_open: true
     volumes:
       - ./services/analytics:/opt/app
+      - ./var/log/app:/var/log/app
     expose:
       - "80"
     environment:
       - "DEBUG=${DEBUG}"
+      - "TIMER_SPEED=${TIMER_SPEED}"
+      - "TIMER_BEGIN=${TIMER_BEGIN}"
     depends_on:
       - satis
       - auth
@@ -100,12 +107,15 @@ services:
     stdin_open: true
     volumes:
       - ./services/sender:/opt/app
+      - ./var/log/app:/var/log/app
     environment:
       - "DEBUG=${DEBUG}"
       - "MAILER_DSN=${MAILER_DSN}"
       - "SENDER_EMAIL=${SENDER_EMAIL}"
       - "SENDER_NAME=${SENDER_NAME}"
       - "RABBITMQ_DSN=${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672"
+      - "TIMER_SPEED=${TIMER_SPEED}"
+      - "TIMER_BEGIN=${TIMER_BEGIN}"
     depends_on:
       - satis
       - auth

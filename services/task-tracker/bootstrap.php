@@ -229,7 +229,6 @@ $container->service(Producer::class, function (ContainerInterface $container) {
     /** @var Env $env */
     $env = $container->get(Env::class);
     return new Producer(
-        $container->get(EventPacker::class),
         $env->get('RABBITMQ_DSN')
     );
 });
@@ -383,6 +382,8 @@ $container->service(UserRolesAssignListener::class, function (ContainerInterface
 
 $container->service(ProduceEventListener::class, function (ContainerInterface $container) {
     $listener = new ProduceEventListener(
+        $container->get(LoggerInterface::class),
+        $container->get(EventPacker::class),
         $container->get(ProducerInterface::class)
     );
     $listener->bindEventToTopic(TaskAssigned::class, 'task');

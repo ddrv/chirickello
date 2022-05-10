@@ -6,10 +6,15 @@ use Chirickello\Package\Consumer\ConsumerHandlerInterface;
 use Chirickello\Package\Consumer\ConsumerInterface;
 use Chirickello\Package\Consumer\RabbitMQ\Consumer;
 use Chirickello\Package\ConsumerEventHandler\ConsumerEventHandler;
+use Chirickello\Package\ConsumerLoggedHandler\ConsumerLoggedHandler;
 use Chirickello\Package\Event\SalaryPaid\SalaryPaid;
 use Chirickello\Package\Event\UserAdded\UserAdded;
 use Chirickello\Package\EventPacker\EventPacker;
 use Chirickello\Package\EventSchemaRegistry\EventSchemaRegistry;
+use Chirickello\Package\LoggerFile\LoggerFile;
+use Chirickello\Package\Timer\ForcedTimer;
+use Chirickello\Package\Timer\RealTimer;
+use Chirickello\Package\Timer\TimerInterface;
 use Chirickello\Sender\Listener\SendDailySalaryReportListener;
 use Chirickello\Sender\Listener\SetMailSender;
 use Chirickello\Sender\Listener\SaveCreatedUserListener;
@@ -19,6 +24,7 @@ use Ddrv\Container\Container;
 use Ddrv\Env\Env;
 use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Mailer\Event\MessageEvent;
 use Symfony\Component\Mailer\Mailer;
@@ -98,6 +104,33 @@ $container->service(SetMailSender::class, function (ContainerInterface $containe
     );
 });
 
+$container->service(TimerInterface::class, function (ContainerInterface $container) {
+    /** @var Env $env */
+    $env = $container->get(Env::class);
+    $debug = (bool)((int)$env->get('DEBUG'));
+    $speed = (int)$env->get('TIMER_SPEED');
+    if ($speed === 0) {
+        $speed = 1;
+    }
+    $begin = $env->get('TIMER_BEGIN');
+    if (!preg_match('/[0-9]{4}-[0-9]{2}-[0-9]{2}/u', $begin)) {
+        $debug = false;
+    }
+    if (!$debug || $speed === 1) {
+        return new RealTimer();
+    }
+    return new ForcedTimer($begin, $speed);
+});
+
+$container->service(LoggerFile::class, function (ContainerInterface $container) {
+    return new LoggerFile(
+        implode(DIRECTORY_SEPARATOR, ['', 'var', 'log', 'app', 'app.log']),
+        'sender',
+        $container->get(TimerInterface::class)
+    );
+});
+$container->bind(LoggerInterface::class, LoggerFile::class);
+
 $container->service(EventDispatcher::class, function () {
     return new EventDispatcher();
 });
@@ -143,7 +176,13 @@ $container->service(ConsumerEventHandler::class, function (ContainerInterface $c
         ]
     );
 });
-$container->bind(ConsumerHandlerInterface::class, ConsumerEventHandler::class);
+
+$container->service(ConsumerHandlerInterface::class, function (ContainerInterface $container) {
+    return new ConsumerLoggedHandler(
+        $container->get(ConsumerEventHandler::class),
+        $container->get(LoggerInterface::class)
+    );
+});
 
 /** @var EventDispatcher $eventDispatcher */
 $eventDispatcher = $container->get(EventDispatcher::class);

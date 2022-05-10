@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Chirickello\Package\Producer\RabbitMQ;
 
-use Chirickello\Package\Event\BaseEvent;
-use Chirickello\Package\EventPacker\EventPacker;
 use Chirickello\Package\Producer\ProducerInterface;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
@@ -15,7 +13,6 @@ use Throwable;
 
 class Producer implements ProducerInterface
 {
-    private EventPacker $packer;
     private ?AMQPChannel $channel = null;
     private ?AMQPStreamConnection $connection = null;
     private string $host;
@@ -23,9 +20,8 @@ class Producer implements ProducerInterface
     private string $user;
     private string $password;
 
-    public function __construct(EventPacker $packer, string $dsn)
+    public function __construct(string $dsn)
     {
-        $this->packer = $packer;
         $parts = parse_url('tcp://' . $dsn);
         $this->host = $parts['host'];
         $this->port = $parts['port'];
@@ -33,15 +29,15 @@ class Producer implements ProducerInterface
         $this->password = $parts['pass'] ?? 'guest';
     }
 
-    public function produce(BaseEvent $event, string $topic): void
+    public function produce(string $message, string $topic): void
     {
         $channel = $this->getChannel();
         $channel->exchange_declare($topic, AMQPExchangeType::FANOUT, false, true, false);
 
-        $message = new AMQPMessage($this->packer->pack($event), [
+        $amqpMessage = new AMQPMessage($message, [
             'content_type' => 'application/json',
         ]);
-        $channel->basic_publish($message, $topic);
+        $channel->basic_publish($amqpMessage, $topic);
     }
 
     private function getChannel(): AMQPChannel

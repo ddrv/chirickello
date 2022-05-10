@@ -4,7 +4,6 @@
   "version": "1.0.0",
   "require": {
     "php": ">=7.4",
-    "chirickello/event-packer": "^1.0",
     "chirickello/producer": "^1.0",
     "php-amqplib/php-amqplib": "^3.2"
   },

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Chirickello\Package\Consumer\ConsumerHandlerInterface;
 use Chirickello\Package\Consumer\ConsumerInterface;
-use Chirickello\Package\Consumer\RabbitMQ\Consumer;
+use Chirickello\Package\Consumer\Kafka\Consumer;
 use Chirickello\Package\ConsumerEventHandler\ConsumerEventHandler;
 use Chirickello\Package\ConsumerLoggedHandler\ConsumerLoggedHandler;
 use Chirickello\Package\Event\SalaryPaid\SalaryPaid;
@@ -161,7 +161,7 @@ $container->service(Consumer::class, function (ContainerInterface $container) {
     /** @var Env $env */
     $env = $container->get(Env::class);
     return new Consumer(
-        $env->get('RABBITMQ_DSN'),
+        $env->get('KAFKA_DSN'),
         'sender'
     );
 });

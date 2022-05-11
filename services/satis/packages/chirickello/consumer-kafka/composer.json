@@ -1,15 +1,15 @@
 {
-  "name": "chirickello/consumer-rabbitmq",
+  "name": "chirickello/consumer-kafka",
   "type": "library",
   "version": "1.0.0",
   "require": {
     "php": ">=7.4",
     "chirickello/consumer": "^1.0",
-    "php-amqplib/php-amqplib": "^3.2"
+    "longlang/phpkafka": "^1.2"
   },
   "autoload": {
     "psr-4": {
-      "Chirickello\\Package\\Consumer\\RabbitMQ\\": "src/"
+      "Chirickello\\Package\\Consumer\\Kafka\\": "src/"
     }
   }
 }

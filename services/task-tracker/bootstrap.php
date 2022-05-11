@@ -2,7 +2,7 @@
 
 use Chirickello\Package\Consumer\ConsumerHandlerInterface;
 use Chirickello\Package\Consumer\ConsumerInterface;
-use Chirickello\Package\Consumer\RabbitMQ\Consumer;
+use Chirickello\Package\Consumer\Kafka\Consumer;
 use Chirickello\Package\ConsumerEventHandler\ConsumerEventHandler;
 use Chirickello\Package\ConsumerLoggedHandler\ConsumerLoggedHandler;
 use Chirickello\Package\Event\TaskAssigned\TaskAssigned;
@@ -18,7 +18,7 @@ use Chirickello\Package\Middleware\AuthRequired\AuthRequiredMiddleware;
 use Chirickello\Package\Middleware\RoleAccess\RoleAccessMiddlewareFactory;
 use Chirickello\Package\Middleware\ScopeAccess\ScopeAccessMiddlewareFactory;
 use Chirickello\Package\Producer\ProducerInterface;
-use Chirickello\Package\Producer\RabbitMQ\Producer;
+use Chirickello\Package\Producer\Kafka\Producer;
 use Chirickello\Package\Timer\ForcedTimer;
 use Chirickello\Package\Timer\RealTimer;
 use Chirickello\Package\Timer\TimerInterface;
@@ -201,7 +201,7 @@ $container->service(Consumer::class, function (ContainerInterface $container) {
     /** @var Env $env */
     $env = $container->get(Env::class);
     return new Consumer(
-        $env->get('RABBITMQ_DSN'),
+        $env->get('KAFKA_DSN'),
         'task-tracker'
     );
 });
@@ -229,7 +229,7 @@ $container->service(Producer::class, function (ContainerInterface $container) {
     /** @var Env $env */
     $env = $container->get(Env::class);
     return new Producer(
-        $env->get('RABBITMQ_DSN')
+        $env->get('KAFKA_DSN')
     );
 });
 $container->bind(ProducerInterface::class, Producer::class);
@@ -386,8 +386,8 @@ $container->service(ProduceEventListener::class, function (ContainerInterface $c
         $container->get(EventPacker::class),
         $container->get(ProducerInterface::class)
     );
-    $listener->bindEventToTopic(TaskAssigned::class, 'task');
-    $listener->bindEventToTopic(TaskCompleted::class, 'task');
+    $listener->bindEventToTopic(TaskAssigned::class, 'task-workflow');
+    $listener->bindEventToTopic(TaskCompleted::class, 'task-workflow');
     return $listener;
 });
 

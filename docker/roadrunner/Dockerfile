@@ -15,6 +15,7 @@ RUN apk update && \
       php7-curl \
       php7-sockets \
       php7-pdo \
+      php7-bcmath \
       php7-pdo_sqlite
 
 # install composer

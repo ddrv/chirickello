@@ -71,8 +71,8 @@ class TaskCreateHandler implements RequestHandlerInterface
         if ($len > 1000 ) {
             $errors['title'][] = 'title can not be longer 1000 characters';
         }
-        if (!preg_match('/^\[[a-zA-Z]+-[1-9]([0-9]+)?]\s*-\s*.+$/u', $title)) {
-            $errors['title'][] = 'title can not be longer 1000 characters';
+        if (!preg_match('/^\[[a-zA-Z]+-[1-9]([0-9]+)?].+$/u', $title)) {
+            $errors['title'][] = 'title must be contains jira-id';
         }
         if (!empty($errors)) {
             return $this->createErrorResponse($errors);

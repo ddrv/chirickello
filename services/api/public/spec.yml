@@ -207,8 +207,8 @@ components:
       type: string
       minLength: 1
       maxLength: 1000
-      pattern: "^\[[a-zA-Z]+\-[1-9]([0-9]+)?\]\s*\-\s*.+$"
-      example: Выклевать клавишу R
+      pattern: '^\[[a-zA-Z]+\-[1-9]([0-9]+)?\].+$'
+      example: '[JIRAPOPUG-42] Выклевать клавишу R'
     user:
       type: object
       required: [id, login]

@@ -12,7 +12,7 @@ class Task
     private ?string $id;
     private string $authorId;
     private string $assignedTo;
-    private string $description;
+    private string $title;
     private bool $isCompleted = false;
     private DateTimeImmutable $createdAt;
     private array $original;
@@ -20,13 +20,13 @@ class Task
     public function __construct(
         string $authorId,
         string $assignedTo,
-        string $description,
+        string $title,
         DateTimeImmutable $createdAt,
         ?string $id = null
     ) {
         $this->authorId = $authorId;
         $this->assignedTo = $assignedTo;
-        $this->description = $description;
+        $this->title = $title;
         $this->createdAt = $createdAt;
         $this->id = $id;
         $this->flush();
@@ -60,9 +60,9 @@ class Task
         return $this->assignedTo;
     }
 
-    public function getDescription(): string
+    public function getTitle(): string
     {
-        return $this->description;
+        return $this->title;
     }
 
     public function getCreatedAt(): DateTimeImmutable

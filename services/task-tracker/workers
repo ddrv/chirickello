@@ -1,10 +1,10 @@
-[program:user-sync]
+[program:user-stream]
 command=php APP_ROOT/bin/consumer.php user-stream
 autostart=true
 autorestart=true
 startretries=1000
 
-[program:roles-sync]
+[program:roles]
 command=php APP_ROOT/bin/consumer.php roles
 autostart=true
 autorestart=true

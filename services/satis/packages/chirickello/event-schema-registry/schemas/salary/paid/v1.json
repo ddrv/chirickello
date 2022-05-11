@@ -4,6 +4,10 @@
   "description": "json schema for salary paid event (version 1)",
   "type": "object",
   "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
     "event": {
       "type": "string",
       "enum": ["salary.paid"]
@@ -12,6 +16,13 @@
       "type": "integer",
       "enum": [1],
       "default": 1
+    },
+    "time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "producer": {
+      "type": "string"
     },
     "data": {
       "type": "object",
@@ -25,13 +36,13 @@
           "minimum": 0,
           "exclusiveMinimum": true
         },
-        "time": {
+        "paymentTime": {
           "type": "string",
           "format": "date-time"
         }
       },
-      "required": ["userId", "amount", "time"]
+      "required": ["userId", "amount", "paymentTime"]
     }
   },
-  "required": ["event", "data"]
+  "required": ["id", "event", "time", "producer", "data"]
 }

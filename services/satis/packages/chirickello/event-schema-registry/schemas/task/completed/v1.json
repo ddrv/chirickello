@@ -4,6 +4,10 @@
   "description": "json schema for task completed event (version 1)",
   "type": "object",
   "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
     "event": {
       "type": "string",
       "enum": ["task.completed"]
@@ -12,6 +16,13 @@
       "type": "integer",
       "enum": [1],
       "default": 1
+    },
+    "time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "producer": {
+      "type": "string"
     },
     "data": {
       "type": "object",
@@ -27,13 +38,13 @@
         "taskDescription": {
           "type": "string"
         },
-        "time": {
+        "completionTime": {
           "type": "string",
           "format": "date-time"
         }
       },
-      "required": ["taskId", "employeeUserId", "taskDescription", "time"]
+      "required": ["taskId", "employeeUserId", "taskDescription", "completionTime"]
     }
   },
-  "required": ["event", "data"]
+  "required": ["id", "event", "time", "producer", "data"]
 }

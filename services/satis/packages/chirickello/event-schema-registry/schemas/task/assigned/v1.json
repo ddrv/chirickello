@@ -4,6 +4,10 @@
   "description": "json schema for task assigned event (version 1)",
   "type": "object",
   "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
     "event": {
       "type": "string",
       "enum": ["task.assigned"]
@@ -12,6 +16,13 @@
       "type": "integer",
       "enum": [1],
       "default": 1
+    },
+    "time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "producer": {
+      "type": "string"
     },
     "data": {
       "type": "object",
@@ -24,13 +35,13 @@
           "type": "string",
           "format": "uuid"
         },
-        "time": {
+        "assignTime": {
           "type": "string",
           "format": "date-time"
         }
       },
-      "required": ["taskId", "assignedUserId", "time"]
+      "required": ["taskId", "assignedUserId", "assignTime"]
     }
   },
-  "required": ["event", "data"]
+  "required": ["id", "event", "time", "producer", "data"]
 }

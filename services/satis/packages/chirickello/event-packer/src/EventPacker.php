@@ -50,32 +50,49 @@ class EventPacker
         $this->registry->check($event);
         switch ($event->event) {
             case 'user.added':
-                return $this->createUserAddedEvent($event);
+                $unpacked = $this->createUserAddedEvent($event);
+                break;
             case 'user.roles-assigned':
-                return $this->createUserRolesAssignedEvent($event);
+                $unpacked = $this->createUserRolesAssignedEvent($event);
+                break;
             case 'task.assigned':
-                return $this->createTaskAssignedEvent($event);
+                $unpacked = $this->createTaskAssignedEvent($event);
+                break;
             case 'task.completed':
-                return $this->createTaskCompletedEvent($event);
+                $unpacked = $this->createTaskCompletedEvent($event);
+                break;
             case 'salary.paid':
-                return $this->createSalaryPaidEvent($event);
+                $unpacked = $this->createSalaryPaidEvent($event);
+                break;
             default:
                 throw new InvalidArgumentException('unknown event');
         }
+        return $unpacked->postConsume(
+            $event->id,
+            $event->producer,
+            DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s.vP', $event->time)
+        );
     }
 
     private function createUserAddedEvent(object $event): UserAdded
     {
         /** @var object $data */
         $data = $event->data;
-        return new UserAdded($data->userId, $data->login, $data->email);
+        return new UserAdded(
+            $data->userId,
+            $data->login,
+            $data->email
+        );
     }
 
     private function createUserRolesAssignedEvent(object $event): UserRolesAssigned
     {
         /** @var object $data */
         $data = $event->data;
-        return new UserRolesAssigned($data->userId, $data->roles);
+        return new UserRolesAssigned(
+            $data->userId,
+            $data->roles
+        );
     }
 
     private function createTaskAssignedEvent(object $event): TaskAssigned

@@ -4,6 +4,10 @@
   "description": "json schema for user roles assigned event (version 1)",
   "type": "object",
   "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
     "event": {
       "type": "string",
       "enum": ["user.roles-assigned"]
@@ -12,6 +16,13 @@
       "type": "integer",
       "enum": [1],
       "default": 1
+    },
+    "time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "producer": {
+      "type": "string"
     },
     "data": {
       "type": "object",
@@ -32,5 +43,5 @@
       "required": ["userId", "roles"]
     }
   },
-  "required": ["event", "data"]
+  "required": ["id", "event", "time", "producer", "data"]
 }

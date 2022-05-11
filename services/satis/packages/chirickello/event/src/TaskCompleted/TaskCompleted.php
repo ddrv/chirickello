@@ -6,24 +6,25 @@ namespace Chirickello\Package\Event\TaskCompleted;
 
 use Chirickello\Package\Event\BaseEvent;
 use DateTimeImmutable;
+use DateTimeZone;
 
 class TaskCompleted extends BaseEvent
 {
     private string $taskId;
     private string $employeeUserId;
     private string $taskDescription;
-    private DateTimeImmutable $time;
+    private DateTimeImmutable $completionTime;
 
     public function __construct(
-        string $taskId,
-        string $assignedUserId,
-        string $taskDescription,
-        DateTimeImmutable $time
+        string            $taskId,
+        string            $assignedUserId,
+        string            $taskDescription,
+        DateTimeImmutable $completionTime
     ) {
         $this->taskId = $taskId;
         $this->employeeUserId = $assignedUserId;
         $this->taskDescription = $taskDescription;
-        $this->time = $time;
+        $this->completionTime = $completionTime;
     }
 
     public function getTaskId(): string
@@ -41,21 +42,23 @@ class TaskCompleted extends BaseEvent
         return $this->taskDescription;
     }
 
-    public function getTime(): DateTimeImmutable
+    public function getCompletionTime(): DateTimeImmutable
     {
-        return $this->time;
+        return $this->completionTime;
     }
 
-    public function jsonSerialize(): object
+    public function getEventName(): string
+    {
+        return 'task.completed';
+    }
+
+    public function jsonDataSerialize(): object
     {
         return (object)[
-            'event' => 'task.completed',
-            'data' => (object)[
-                'taskId' => $this->taskId,
-                'employeeUserId' => $this->employeeUserId,
-                'taskDescription' => $this->taskDescription,
-                'time' => $this->time->format('Y-m-d\TH:i:s')
-            ],
+            'taskId' => $this->taskId,
+            'employeeUserId' => $this->employeeUserId,
+            'taskDescription' => $this->taskDescription,
+            'completionTime' => $this->completionTime->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d\TH:i:s.vP'),
         ];
     }
 }

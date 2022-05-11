@@ -46,7 +46,7 @@ class TaskTransformer
                 'id' => $task->getId(),
                 'author' => $this->transformUser($users[$task->getAuthorId()]),
                 'assignedTo' => $this->transformUser($users[$task->getAssignedTo()]),
-                'description' => $task->getDescription(),
+                'title' => $task->getTitle(),
                 'status' => $task->isCompleted() ? 'completed' : 'progress',
                 'createdAt' => $task->getCreatedAt()->format('Y-m-d\TH:i:s.vP'),
             ];

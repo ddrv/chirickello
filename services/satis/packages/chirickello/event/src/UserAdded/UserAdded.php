@@ -12,8 +12,11 @@ class UserAdded extends BaseEvent
     private string $login;
     private string $email;
 
-    public function __construct(string $userId, string $login, string $email)
-    {
+    public function __construct(
+        string $userId,
+        string $login,
+        string $email
+    ) {
         $this->userId = $userId;
         $this->login = $login;
         $this->email = $email;
@@ -34,18 +37,20 @@ class UserAdded extends BaseEvent
         return $this->email;
     }
 
+    public function getEventName(): string
+    {
+        return 'user.added';
+    }
+
     /**
      * @inheritDoc
      */
-    public function jsonSerialize(): object
+    public function jsonDataSerialize(): object
     {
         return (object)[
-            'event' => 'user.added',
-            'data' => (object)[
-                'userId' => $this->userId,
-                'login' => $this->login,
-                'email' => $this->email,
-            ],
+            'userId' => $this->userId,
+            'login' => $this->login,
+            'email' => $this->email,
         ];
     }
 }

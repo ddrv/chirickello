@@ -203,10 +203,11 @@ components:
     taskId:
       type: string
       format: uuid
-    taskDescription:
+    taskTitle:
       type: string
       minLength: 1
       maxLength: 1000
+      pattern: "^\[[a-zA-Z]+\-[1-9]([0-9]+)?\]\s*\-\s*.+$"
       example: Выклевать клавишу R
     user:
       type: object
@@ -219,33 +220,26 @@ components:
       additionalProperties: false
     taskInput:
       type: object
-      required: [description]
+      required: [title]
       properties:
-        description:
-          $ref: '#/components/schemas/taskDescription'
-      additionalProperties: false
-    taskPatchDescription:
-      type: object
-      required: [description]
-      properties:
-        description:
-          $ref: '#/components/schemas/taskDescription'
+        title:
+          $ref: '#/components/schemas/taskTitle'
       additionalProperties: false
     taskPatch:
       type: object
-      required: [ description ]
+      required: [ status ]
       properties:
-        isCompleted:
-          type: boolean
-          enum: [ true ]
+        status:
+          type: string
+          enum: [ completed ]
       additionalProperties: false
     task:
       type: object
       properties:
         id:
           $ref: '#/components/schemas/taskId'
-        description:
-          $ref: '#/components/schemas/taskDescription'
+        title:
+          $ref: '#/components/schemas/taskTitle'
         assignedTo:
           $ref: '#/components/schemas/user'
         author:

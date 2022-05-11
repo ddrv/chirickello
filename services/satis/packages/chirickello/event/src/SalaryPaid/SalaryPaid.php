@@ -6,18 +6,27 @@ namespace Chirickello\Package\Event\SalaryPaid;
 
 use Chirickello\Package\Event\BaseEvent;
 use DateTimeImmutable;
+use DateTimeZone;
 
 class SalaryPaid extends BaseEvent
 {
     private string $userId;
     private float $amount;
-    private DateTimeImmutable $date;
+    private DateTimeImmutable $paymentTime;
 
-    public function __construct(string $userId, float $amount, DateTimeImmutable $date)
-    {
+    public function __construct(
+        string            $userId,
+        float             $amount,
+        DateTimeImmutable $paymentAssignTime
+    ) {
         $this->userId = $userId;
         $this->amount = $amount;
-        $this->date = $date;
+        $this->paymentTime = $paymentAssignTime;
+    }
+
+    public function getEventName(): string
+    {
+        return 'salary.paid';
     }
 
     public function getUserId(): string
@@ -30,20 +39,17 @@ class SalaryPaid extends BaseEvent
         return $this->amount;
     }
 
-    public function getDate(): DateTimeImmutable
+    public function getPaymentTime(): DateTimeImmutable
     {
-        return $this->date;
+        return $this->paymentTime;
     }
 
-    public function jsonSerialize(): object
+    public function jsonDataSerialize(): object
     {
         return (object)[
-            'event' => 'salary.paid',
-            'data' => (object)[
-                'userId' => $this->userId,
-                'amount' => $this->amount,
-                'date' => $this->date->format('Y-m-d\TH:i:s')
-            ],
+            'userId' => $this->userId,
+            'amount' => $this->amount,
+            'paymentTime' => $this->paymentTime->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d\TH:i:s.vP'),
         ];
     }
 }

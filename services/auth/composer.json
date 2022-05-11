@@ -34,7 +34,8 @@
     "chirickello/listener-produce-event": "^1.0",
     "chirickello/producer-kafka": "^1.0",
     "chirickello/logger-file": "^1.0",
-    "chirickello/timer": "^1.0"
+    "chirickello/timer": "^1.0",
+    "robmorgan/phinx": "^0.12.10"
   },
   "autoload": {
     "psr-4": {

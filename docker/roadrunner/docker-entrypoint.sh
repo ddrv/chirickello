@@ -4,9 +4,9 @@ set -e
 
 composer install -q
 
-# init project
-if [ -f ./bin/init.php ]; then
-    php ./bin/init.php
+# migrations
+if [ -f ./vendor/bin/phinx ]; then
+    ./vendor/bin/phinx migrate
 fi
 
 if [ -d ./var ]; then

@@ -8,11 +8,14 @@ use Chirickello\Package\Event\BaseEvent;
 
 class TaskRated extends BaseEvent
 {
-    public function jsonSerialize(): object
+    public function getEventName(): string
+    {
+        return 'task.rated';
+    }
+
+    public function jsonDataSerialize(): object
     {
         return (object)[
-            'event' => 'task.rated',
-            'data' => (object)[],
         ];
     }
 }

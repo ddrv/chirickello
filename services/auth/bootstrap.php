@@ -55,10 +55,8 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'a
 $container = new Container();
 
 $root = __DIR__;
-$data = implode(DIRECTORY_SEPARATOR, [$root . DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'data']);
 $container->value('root', __DIR__);
-$container->value('data', $data);
-$container->value('db', $data . DIRECTORY_SEPARATOR . 'database.sqlite3');
+$container->value('db', implode(DIRECTORY_SEPARATOR, [$root, 'var', 'data', 'auth.sqlite3']));
 
 // ENV
 
@@ -132,7 +130,8 @@ $container->service(Producer::class, function (ContainerInterface $container) {
     /** @var Env $env */
     $env = $container->get(Env::class);
     return new Producer(
-        $env->get('KAFKA_DSN')
+        $env->get('KAFKA_DSN'),
+        'auth'
     );
 });
 $container->bind(ProducerInterface::class, Producer::class);
@@ -153,7 +152,8 @@ $container->service(ProduceEventListener::class, function (ContainerInterface $c
     $listener = new ProduceEventListener(
         $container->get(LoggerInterface::class),
         $container->get(EventPacker::class),
-        $container->get(ProducerInterface::class)
+        $container->get(ProducerInterface::class),
+        $container->get(TimerInterface::class)
     );
     $listener->bindEventToTopic(UserAdded::class, 'user-stream');
     $listener->bindEventToTopic(UserRolesAssigned::class, 'roles');

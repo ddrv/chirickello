@@ -8,11 +8,14 @@ use Chirickello\Package\Event\BaseEvent;
 
 class BalanceReduced extends BaseEvent
 {
-    public function jsonSerialize(): object
+    public function getEventName(): string
+    {
+        return 'balance.reduced';
+    }
+
+    public function jsonDataSerialize(): object
     {
         return (object)[
-            'event' => 'balance.reduced',
-            'data' => (object)[],
         ];
     }
 }

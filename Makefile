@@ -19,11 +19,11 @@ create-user:
 create-random-users:
 	docker-compose exec auth sh -c "php /opt/app/bin/create-random-users.php"
 
-api-sh:
-	docker-compose exec api sh
-
 auth-sh:
 	docker-compose exec auth sh
 
 task-tracker-sh:
 	docker-compose exec task-tracker sh
+
+sender-sh:
+	docker-compose exec sender sh

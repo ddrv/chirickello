@@ -40,7 +40,7 @@ $root = __DIR__;
 $container = new Container();
 
 $container->value('root', $root);
-$container->value('db', implode(DIRECTORY_SEPARATOR, [$root, 'var', 'data', 'database.sqlite3']));
+$container->value('db', implode(DIRECTORY_SEPARATOR, [$root, 'var', 'data', 'sender.sqlite3']));
 
 $container->service(Env::class, function () {
     return new Env('');

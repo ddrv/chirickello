@@ -57,17 +57,22 @@ class TaskCreateHandler implements RequestHandlerInterface
         }
         $post = $request->getParsedBody();
         $user = $request->getAttribute('user');
-        $description = $post['description'] ?? null;
-        if (!is_string($description)) {
-            $errors['description'][] = 'description must be string';
+        $title = $post['title'] ?? null;
+        if (!is_string($title)) {
+            $errors['title'][] = 'title must be string';
+            return $this->createErrorResponse($errors);
         }
-        $description = trim($description);
-        $len = mb_strlen($description);
+        $title = trim($title);
+        $len = mb_strlen($title);
         if ($len === 0 ) {
-            $errors['description'][] = 'description is required';
+            $errors['title'][] = 'title is required';
+            return $this->createErrorResponse($errors);
         }
         if ($len > 1000 ) {
-            $errors['description'][] = 'description can not be longer 1000 characters';
+            $errors['title'][] = 'title can not be longer 1000 characters';
+        }
+        if (!preg_match('/^\[[a-zA-Z]+-[1-9]([0-9]+)?]\s*-\s*.+$/u', $title)) {
+            $errors['title'][] = 'title can not be longer 1000 characters';
         }
         if (!empty($errors)) {
             return $this->createErrorResponse($errors);
@@ -77,7 +82,7 @@ class TaskCreateHandler implements RequestHandlerInterface
         $task = new Task(
             $authorId,
             $assignedTo,
-            $description,
+            $title,
             $now
         );
 

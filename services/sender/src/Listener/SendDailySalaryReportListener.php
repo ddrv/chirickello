@@ -54,7 +54,7 @@ class SendDailySalaryReportListener
             return;
         }
         $login = $user->getLogin();
-        $date = $event->getDate()->format('m/d/Y');
+        $date = $event->getPaymentTime()->format('m/d/Y');
 
         $context = [
             'login' => $login ?? 'our friend',

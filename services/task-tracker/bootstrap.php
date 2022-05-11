@@ -68,7 +68,7 @@ $container = new Container();
 
 $root = __DIR__;
 $container->value('root', $root);
-$container->value('db', implode(DIRECTORY_SEPARATOR, [$root, 'var', 'data', 'database.sqlite3']));
+$container->value('db', implode(DIRECTORY_SEPARATOR, [$root, 'var', 'data', 'task-tracker.sqlite3']));
 
 // ENV
 $container->service(Env::class, function (ContainerInterface $container) {
@@ -229,7 +229,8 @@ $container->service(Producer::class, function (ContainerInterface $container) {
     /** @var Env $env */
     $env = $container->get(Env::class);
     return new Producer(
-        $env->get('KAFKA_DSN')
+        $env->get('KAFKA_DSN'),
+        'task-tracker'
     );
 });
 $container->bind(ProducerInterface::class, Producer::class);
@@ -384,7 +385,8 @@ $container->service(ProduceEventListener::class, function (ContainerInterface $c
     $listener = new ProduceEventListener(
         $container->get(LoggerInterface::class),
         $container->get(EventPacker::class),
-        $container->get(ProducerInterface::class)
+        $container->get(ProducerInterface::class),
+        $container->get(TimerInterface::class)
     );
     $listener->bindEventToTopic(TaskAssigned::class, 'task-workflow');
     $listener->bindEventToTopic(TaskCompleted::class, 'task-workflow');

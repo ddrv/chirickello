@@ -76,9 +76,9 @@ class TaskUpdateHandler implements RequestHandlerInterface
             return $response;
         }
         $errors = [];
-        $isCompleted = $post['isCompleted'] ?? null;
-        if ($isCompleted !== true) {
-            $errors['isCompleted'][] = 'isCompleted mus be true';
+        $status = $post['status'] ?? null;
+        if ($status !== 'completed') {
+            $errors['status'][] = 'status mus be completed';
         }
         if (!empty($errors)) {
             return $this->createErrorResponse($errors);
@@ -88,7 +88,7 @@ class TaskUpdateHandler implements RequestHandlerInterface
         $event = new TaskCompleted(
             $task->getId(),
             $task->getAssignedTo(),
-            $task->getDescription(),
+            $task->getTitle(),
             $this->timer->now()
         );
         $this->eventDispatcher->dispatch($event);

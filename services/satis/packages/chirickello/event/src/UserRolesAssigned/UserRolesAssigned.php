@@ -15,8 +15,10 @@ class UserRolesAssigned extends BaseEvent
      * @param string $userId
      * @param string[] $roles
      */
-    public function __construct(string $userId, array $roles)
-    {
+    public function __construct(
+        string $userId,
+        array $roles
+    ) {
         $this->userId = $userId;
         $this->roles = $roles;
     }
@@ -34,14 +36,16 @@ class UserRolesAssigned extends BaseEvent
         return $this->roles;
     }
 
-    public function jsonSerialize(): object
+    public function getEventName(): string
+    {
+        return 'user.roles-assigned';
+    }
+
+    public function jsonDataSerialize(): object
     {
         return (object)[
-            'event' => 'user.roles-assigned',
-            'data' => (object)[
-                'userId' => $this->userId,
-                'roles' => $this->roles,
-            ],
+            'userId' => $this->userId,
+            'roles' => $this->roles,
         ];
     }
 }

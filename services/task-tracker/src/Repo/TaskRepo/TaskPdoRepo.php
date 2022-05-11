@@ -90,13 +90,13 @@ class TaskPdoRepo implements TaskRepo
     private function create(Task $task): void
     {
         $id = $this->generateId();
-        $sql = 'INSERT INTO tasks (id, author_id, assigned_to, description, is_completed, created_at) VALUES (?, ?, ?, ?, ?, ?);';
+        $sql = 'INSERT INTO tasks (id, author_id, assigned_to, title, is_completed, created_at) VALUES (?, ?, ?, ?, ?, ?);';
         $st = $this->db->prepare($sql);
         $st->execute([
             $id,
             $task->getAuthorId(),
             $task->getAssignedTo(),
-            $task->getDescription(),
+            $task->getTitle(),
             (int)$task->isCompleted(),
             $task->getCreatedAt()->setTimezone($this->utc)->format(self::TIME_FORMAT),
         ]);
@@ -129,7 +129,7 @@ class TaskPdoRepo implements TaskRepo
         $task = new Task(
             $row['author_id'],
             $row['assigned_to'],
-            $row['description'],
+            $row['title'],
             DateTimeImmutable::createFromFormat(self::TIME_FORMAT, $row['created_at'], $this->utc),
             $row['id']
         );

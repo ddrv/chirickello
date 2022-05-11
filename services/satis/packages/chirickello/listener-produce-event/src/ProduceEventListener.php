@@ -8,6 +8,7 @@ use Chirickello\Package\Event\BaseEvent;
 use Chirickello\Package\EventPacker\EventPacker;
 use Chirickello\Package\EventSchemaRegistry\Exception\RegistryException;
 use Chirickello\Package\Producer\ProducerInterface;
+use Chirickello\Package\Timer\TimerInterface;
 use Psr\Log\LoggerInterface;
 
 class ProduceEventListener
@@ -16,17 +17,20 @@ class ProduceEventListener
     private ProducerInterface $producer;
     private EventPacker $packer;
     private array $map = [];
+    private TimerInterface $timer;
 
     public function __construct(
         LoggerInterface $logger,
         EventPacker $packer,
         ProducerInterface $producer,
+        TimerInterface $timer,
         string $defaultTopic = 'default'
     ) {
         $this->logger = $logger;
         $this->producer = $producer;
         $this->map['*'] = $defaultTopic;
         $this->packer = $packer;
+        $this->timer = $timer;
     }
 
     public function bindEventToTopic(string $eventClassName, string $topic): void
@@ -44,7 +48,12 @@ class ProduceEventListener
         }
 
         $topic = $this->map[get_class($event)] ?? $this->map['*'];
-        $id = uniqid('', true);
+
+        $event = $event->preProduce(
+            $this->producer->getName(),
+            $this->timer->now()
+        );
+        $id = $event->getEventId();
         try {
             $message = $this->packer->pack($event);
         } catch (RegistryException $exception) {

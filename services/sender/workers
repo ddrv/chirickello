@@ -1,6 +1,6 @@
-[program:user-sync]
+[program:user-stream]
 command=php APP_ROOT/bin/consumer.php user-stream
 
-[program:mailing]
+[program:notifications]
 command=php APP_ROOT/bin/consumer.php notifications
 

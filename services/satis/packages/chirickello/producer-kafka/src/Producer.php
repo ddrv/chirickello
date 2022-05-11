@@ -11,8 +11,9 @@ use longlang\phpkafka\Producer\ProducerConfig;
 class Producer implements ProducerInterface
 {
     private KafkaProducer $producer;
+    private string $name;
 
-    public function __construct(string $dsn)
+    public function __construct(string $dsn, string $name)
     {
         $parts = parse_url('tcp://' . $dsn);
         $host = $parts['host'];
@@ -22,6 +23,15 @@ class Producer implements ProducerInterface
         $config->setUpdateBrokers(true);
         $config->setAcks(-1);
         $this->producer = new KafkaProducer($config);
+        $this->name = $name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
     }
 
     public function produce(string $message, string $topic): void

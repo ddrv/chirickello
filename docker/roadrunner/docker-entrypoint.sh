@@ -101,4 +101,8 @@ fi
 echo "" >> /etc/supervisord.conf
 
 #run, Forest, run!
+if [ ${KAFKA_DSN} ]; then
+  /wait-for-it.sh ${KAFKA_DSN} -t 0
+fi
+
 /usr/bin/supervisord -c /etc/supervisord.conf

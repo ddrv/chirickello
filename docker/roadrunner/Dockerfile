@@ -6,6 +6,7 @@ WORKDIR /opt/app
 # install supervisor and php
 RUN apk update && \
     apk add --no-cache \
+      bash \
       supervisor \
       php7 \
       php7-mbstring \
@@ -37,6 +38,8 @@ RUN mkdir /var/log/supervisor -p
 EXPOSE 80
 
 COPY docker-entrypoint.sh /
+COPY wait-for-it.sh /
+RUN chmod +x /wait-for-it.sh
 
 STOPSIGNAL SIGTERM
 

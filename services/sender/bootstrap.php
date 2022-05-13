@@ -173,6 +173,7 @@ $container->service(ConsumerEventHandler::class, function (ContainerInterface $c
         $container->get(EventDispatcherInterface::class),
         [
             UserAdded::class,
+            SalaryPaid::class,
         ]
     );
 });

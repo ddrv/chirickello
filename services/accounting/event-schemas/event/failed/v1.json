@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "event.failed.v1",
+  "description": "json schema for event failed event (version 1)",
+  "type": "object",
+  "properties": {
+    "event": {
+      "type": "string",
+      "enum": ["event.failed"]
+    },
+    "version": {
+      "type": "integer",
+      "enum": [1],
+      "default": 1
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "payload": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "attempt": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": ["payload", "reason", "attempt"]
+    }
+  },
+  "required": ["event", "data"]
+}

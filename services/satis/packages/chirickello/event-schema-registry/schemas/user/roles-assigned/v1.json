@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "user.roles.assigned.v1",
+  "title": "user.roles-assigned.v1",
   "description": "json schema for user roles assigned event (version 1)",
   "type": "object",
   "properties": {

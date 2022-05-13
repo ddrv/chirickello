@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "user.added.v1",
+  "title": "salary.paid.v1",
   "description": "json schema for salary paid event (version 1)",
   "type": "object",
   "properties": {
@@ -32,7 +32,7 @@
           "format": "uuid"
         },
         "amount": {
-          "type": "number",
+          "type": "integer",
           "minimum": 0,
           "exclusiveMinimum": true
         },

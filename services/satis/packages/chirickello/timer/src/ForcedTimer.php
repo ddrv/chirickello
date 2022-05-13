@@ -32,4 +32,14 @@ class ForcedTimer implements TimerInterface
         $timestamp = $start + ($seconds * $this->speed) + $micro;
         return DateTimeImmutable::createFromFormat('U', (string)$timestamp);
     }
+
+    public function getBeginDate(): DateTimeImmutable
+    {
+        return $this->begin;
+    }
+
+    public function getSpeed(): int
+    {
+        return $this->speed;
+    }
 }

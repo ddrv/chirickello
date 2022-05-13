@@ -41,19 +41,23 @@ class ProduceEventListener
         $this->map[$eventClassName] = $topic;
     }
 
+    /**
+     * @param object $event
+     * @return void
+     * @throws RegistryException
+     */
     public function __invoke(object $event): void
     {
-        if (!$event instanceof BaseEvent) {
-            return;
-        }
-
         $topic = $this->map[get_class($event)] ?? $this->map['*'];
 
-        $event = $event->preProduce(
-            $this->producer->getName(),
-            $this->timer->now()
-        );
-        $id = $event->getEventId();
+        $id = uniqid('event-', true);
+        if ($event instanceof BaseEvent) {
+            $event = $event->preProduce(
+                $this->producer->getName(),
+                $this->timer->now()
+            );
+            $id = $event->getEventId();
+        }
         try {
             $message = $this->packer->pack($event);
         } catch (RegistryException $exception) {

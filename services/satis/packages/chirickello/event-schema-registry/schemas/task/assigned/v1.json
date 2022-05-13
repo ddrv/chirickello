@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "user.added.v1",
+  "title": "task.assigned.v1",
   "description": "json schema for task assigned event (version 1)",
   "type": "object",
   "properties": {
@@ -27,11 +27,11 @@
     "data": {
       "type": "object",
       "properties": {
-        "userId": {
+        "taskId": {
           "type": "string",
           "format": "uuid"
         },
-        "amount": {
+        "assignedUserId": {
           "type": "string",
           "format": "uuid"
         },

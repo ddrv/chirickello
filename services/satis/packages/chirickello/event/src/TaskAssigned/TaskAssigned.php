@@ -39,9 +39,9 @@ class TaskAssigned extends BaseEvent
         return $this->assignedUserId;
     }
 
-    public function setAssignTime(DateTimeImmutable $assignTime): void
+    public function getAssignTime(): DateTimeImmutable
     {
-        $this->assignTime = $assignTime;
+        return $this->assignTime;
     }
 
     public function jsonDataSerialize(): object

@@ -5,6 +5,7 @@ use Chirickello\Package\Consumer\ConsumerInterface;
 use Chirickello\Package\Consumer\Kafka\Consumer;
 use Chirickello\Package\ConsumerEventHandler\ConsumerEventHandler;
 use Chirickello\Package\ConsumerLoggedHandler\ConsumerLoggedHandler;
+use Chirickello\Package\Event\TaskAdded\TaskAdded;
 use Chirickello\Package\Event\TaskAssigned\TaskAssigned;
 use Chirickello\Package\Event\TaskCompleted\TaskCompleted;
 use Chirickello\Package\Event\UserAdded\UserAdded;
@@ -162,8 +163,11 @@ $container->service(SaveUser::class, function (ContainerInterface $container) {
 
 // TRANSFORMERS
 $container->service(TaskTransformer::class, function(ContainerInterface $container) {
+    /** @var Env $env */
+    $env = $container->get(Env::class);
     return new TaskTransformer(
-        $container->get(UserRepo::class)
+        $container->get(UserRepo::class),
+        $env->get('TIMEZONE', 'UTC')
     );
 });
 
@@ -388,6 +392,7 @@ $container->service(ProduceEventListener::class, function (ContainerInterface $c
         $container->get(ProducerInterface::class),
         $container->get(TimerInterface::class)
     );
+    $listener->bindEventToTopic(TaskAdded::class, 'task-stream');
     $listener->bindEventToTopic(TaskAssigned::class, 'task-workflow');
     $listener->bindEventToTopic(TaskCompleted::class, 'task-workflow');
     return $listener;
@@ -403,6 +408,7 @@ $container->bind(EventDispatcherInterface::class, EventDispatcher::class);
 $eventDispatcher = $container->get(EventDispatcher::class);
 $eventDispatcher->addListener(UserAdded::class, $container->get(UserAddListener::class));
 $eventDispatcher->addListener(UserRolesAssigned::class, $container->get(UserRolesAssignListener::class));
+$eventDispatcher->addListener(TaskAdded::class, $container->get(ProduceEventListener::class));
 $eventDispatcher->addListener(TaskAssigned::class, $container->get(ProduceEventListener::class));
 $eventDispatcher->addListener(TaskCompleted::class, $container->get(ProduceEventListener::class));
 

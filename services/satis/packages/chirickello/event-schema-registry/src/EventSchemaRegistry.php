@@ -12,11 +12,16 @@ use JsonSchema\Validator;
 
 class EventSchemaRegistry
 {
-    private string $dir;
+    private array $dirs = [];
 
     public function __construct()
     {
-        $this->dir = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'schemas';
+        $this->dirs[] = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'schemas';
+    }
+
+    public function addDirectory(string $dir): void
+    {
+        $this->dirs[] = $dir;
     }
 
     /**
@@ -42,7 +47,12 @@ class EventSchemaRegistry
             throw new InvalidData('version property must be int');
         }
         [$scope, $name] = $parts;
-        $schema = $this->getSchema($scope, $name, $version);
+        $this->validate($validator, $data, $this->getSchema($scope, $name, $version));
+        $this->validate($validator, $data, $this->getGeneralSchema());
+    }
+
+    private function validate(Validator $validator, object $data, object $schema): void
+    {
         $validator->validate($data, $schema, Constraint::CHECK_MODE_APPLY_DEFAULTS);
         if (!$validator->isValid()) {
             $message = 'invalid schema:' . PHP_EOL;
@@ -68,6 +78,16 @@ class EventSchemaRegistry
     }
 
     /**
+     * @return object
+     */
+    private function getGeneralSchema(): object
+    {
+        $filename = $this->dirs[0] . DIRECTORY_SEPARATOR . 'general.json';
+        $json = file_get_contents($filename);
+        return json_decode($json, false);
+    }
+
+    /**
      * @param string $scope
      * @param string $name
      * @param int $version
@@ -76,10 +96,12 @@ class EventSchemaRegistry
      */
     private function getSchemaFilename(string $scope, string $name, int $version): string
     {
-        $filename = implode(DIRECTORY_SEPARATOR, [$this->dir, $scope, $name, sprintf('v%d.json', $version)]);
-        if (!file_exists($filename)) {
-            throw new SchemaNotFound(sprintf('schema %s.%s v%d not found', $scope, $name, $version));
+        foreach ($this->dirs as $dir) {
+            $filename = implode(DIRECTORY_SEPARATOR, [$dir, $scope, $name, sprintf('v%d.json', $version)]);
+            if (file_exists($filename)) {
+                return $filename;
+            }
         }
-        return $filename;
+        throw new SchemaNotFound(sprintf('schema %s.%s v%d not found', $scope, $name, $version));
     }
 }

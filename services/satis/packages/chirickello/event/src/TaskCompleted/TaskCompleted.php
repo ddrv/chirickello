@@ -12,18 +12,15 @@ class TaskCompleted extends BaseEvent
 {
     private string $taskId;
     private string $employeeUserId;
-    private string $taskDescription;
     private DateTimeImmutable $completionTime;
 
     public function __construct(
         string            $taskId,
-        string            $assignedUserId,
-        string            $taskDescription,
+        string            $employeeUserId,
         DateTimeImmutable $completionTime
     ) {
         $this->taskId = $taskId;
-        $this->employeeUserId = $assignedUserId;
-        $this->taskDescription = $taskDescription;
+        $this->employeeUserId = $employeeUserId;
         $this->completionTime = $completionTime;
     }
 
@@ -35,11 +32,6 @@ class TaskCompleted extends BaseEvent
     public function getEmployeeUserId(): string
     {
         return $this->employeeUserId;
-    }
-
-    public function getTaskDescription(): string
-    {
-        return $this->taskDescription;
     }
 
     public function getCompletionTime(): DateTimeImmutable
@@ -57,7 +49,6 @@ class TaskCompleted extends BaseEvent
         return (object)[
             'taskId' => $this->taskId,
             'employeeUserId' => $this->employeeUserId,
-            'taskDescription' => $this->taskDescription,
             'completionTime' => $this->completionTime->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d\TH:i:s.vP'),
         ];
     }

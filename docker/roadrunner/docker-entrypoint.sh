@@ -2,6 +2,10 @@
 
 set -e
 
+if [ ${WAIT_SATIS} ]; then
+  /wait-for-it.sh satis:80 -t 0
+fi
+
 composer install -q
 
 # migrations
@@ -101,6 +105,9 @@ fi
 echo "" >> /etc/supervisord.conf
 
 #run, Forest, run!
+if [ ${WAIT_AUTH} ]; then
+  /wait-for-it.sh auth:80 -t 0
+fi
 if [ ${KAFKA_DSN} ]; then
   /wait-for-it.sh ${KAFKA_DSN} -t 0
 fi

@@ -19,8 +19,14 @@ create-user:
 create-random-users:
 	docker-compose exec auth sh -c "php /opt/app/bin/create-random-users.php"
 
+get-current-time:
+	docker-compose exec accounting sh -c "php /opt/app/bin/get-current-time.php"
+
 auth-sh:
 	docker-compose exec auth sh
+
+accounting-sh:
+	docker-compose exec accounting sh
 
 task-tracker-sh:
 	docker-compose exec task-tracker sh

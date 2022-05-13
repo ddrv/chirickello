@@ -56,10 +56,19 @@ class SendDailySalaryReportListener
         $login = $user->getLogin();
         $date = $event->getPaymentTime()->format('m/d/Y');
 
+        $amount = (string)$event->getAmount();
+
+        if (strlen($amount) <= 2) {
+            $dollars = '0';
+            $cents = str_pad($amount, 2, '0', STR_PAD_LEFT);
+        } else {
+            $dollars = substr($amount, 0, -2);
+            $cents = substr($amount, -2);
+        }
         $context = [
             'login' => $login ?? 'our friend',
             'date' => $date,
-            'amount' => sprintf('$%.2f', $event->getAmount()),
+            'amount' => sprintf('$%d.%d', $dollars, $cents),
         ];
         $text = $this->twig->render('mail/payment_daily_report.text.twig', $context);
         $html = $this->twig->render('mail/payment_daily_report.html.twig', $context);

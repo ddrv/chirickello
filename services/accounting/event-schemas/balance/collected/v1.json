@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "event.failed.v1",
+  "description": "json schema for balance collected event (version 1)",
+  "type": "object",
+  "properties": {
+    "event": {
+      "type": "string",
+      "enum": ["balance.collected"]
+    },
+    "version": {
+      "type": "integer",
+      "enum": [1],
+      "default": 1
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "required": ["userId"]
+    }
+  },
+  "required": ["event", "data"]
+}

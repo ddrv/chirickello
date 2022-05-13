@@ -145,7 +145,11 @@ class OAuth2Authorize implements RequestHandlerInterface
 
     private function prepareScope(string $scope): string
     {
-        $allowed = ['tasks' => true, 'analytics' => true];
+        $allowed = [
+            'tasks' => true,
+            'accounting' => true,
+            'analytics' => true
+        ];
         $arr = explode(' ', $scope);
         $result = [];
         foreach ($arr as $item) {

@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "required for all",
+  "description": "json schema for all events",
+  "type": "object",
+  "properties": {
+    "event": {
+      "type": "string"
+    }
+  },
+  "required": ["event"]
+}

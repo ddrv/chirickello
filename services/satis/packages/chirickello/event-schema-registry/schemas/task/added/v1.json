@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "task.assigned.v1",
+  "description": "json schema for task added event (version 1)",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "event": {
+      "type": "string",
+      "enum": ["task.added"]
+    },
+    "version": {
+      "type": "integer",
+      "enum": [1],
+      "default": 1
+    },
+    "time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "producer": {
+      "type": "string"
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "taskId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "taskTitle": {
+          "type": "string"
+        }
+      },
+      "required": ["taskId", "taskTitle"]
+    }
+  },
+  "required": ["id", "event", "time", "producer", "data"]
+}

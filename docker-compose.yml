@@ -35,18 +35,19 @@ services:
       - zookeeper
     expose:
       - "9092"
-    entrypoint: /wait-for-it.sh zookeeper:2181 -s --timeout=10 -- /kafka-entrypoint.sh
+    entrypoint: /wait-for-it.sh zookeeper:2181 -s --timeout=0 -- /kafka-entrypoint.sh
     command: kafka-server-start.sh config/server.properties
     environment:
       - "KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092"
       - "KAFKA_BROKER_ID=1"
       - "KAFKA_PORT=9092"
-      - "KAFKA_CREATE_TOPICS=roles:1:1,user-stream:1:1,notifications:1:1,task-workflow:1:1,payments:1:1,stats:1:1"
+      - "KAFKA_CREATE_TOPICS=roles:1:1,user-stream:1:1,notifications:1:1,task-stream,task-workflow:1:1,payments:1:1,stats:1:1"
       - "KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181"
       - "KAFKA_HEAP_OPTS=-Xmx2G -Xms2G"
       - "KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1"
     links:
       - zookeeper
+    restart: on-failure
     networks:
       - default
   auth:
@@ -68,6 +69,7 @@ services:
       - "OAUTH_CLIENT_REDIRECT=${OAUTH_CLIENT_REDIRECT}"
       - "TIMER_SPEED=${TIMER_SPEED}"
       - "TIMER_BEGIN=${TIMER_BEGIN}"
+      - "WAIT_SATIS=1"
     depends_on:
       - satis
       - kafka
@@ -85,8 +87,13 @@ services:
     environment:
       - "DEBUG=${DEBUG}"
       - "KAFKA_DSN=kafka:9092"
+      - "AUTH_HOST=http://auth"
+      - "WORKDAY_OVER=${WORKDAY_OVER}"
+      - "TIMEZONE=${TIMEZONE}"
       - "TIMER_SPEED=${TIMER_SPEED}"
       - "TIMER_BEGIN=${TIMER_BEGIN}"
+      - "WAIT_SATIS=1"
+      - "WAIT_AUTH=1"
     depends_on:
       - satis
       - auth
@@ -106,8 +113,12 @@ services:
     environment:
       - "DEBUG=${DEBUG}"
       - "KAFKA_DSN=kafka:9092"
+      - "AUTH_HOST=http://auth"
+      - "TIMEZONE=${TIMEZONE}"
       - "TIMER_SPEED=${TIMER_SPEED}"
       - "TIMER_BEGIN=${TIMER_BEGIN}"
+      - "WAIT_SATIS=1"
+      - "WAIT_AUTH=1"
     depends_on:
       - satis
       - auth
@@ -127,8 +138,11 @@ services:
       - "SENDER_EMAIL=${SENDER_EMAIL}"
       - "SENDER_NAME=${SENDER_NAME}"
       - "KAFKA_DSN=kafka:9092"
+      - "TIMEZONE=${TIMEZONE}"
       - "TIMER_SPEED=${TIMER_SPEED}"
       - "TIMER_BEGIN=${TIMER_BEGIN}"
+      - "WAIT_SATIS=1"
+      - "WAIT_AUTH=1"
     depends_on:
       - satis
       - auth
@@ -148,8 +162,11 @@ services:
       - "DEBUG=${DEBUG}"
       - "KAFKA_DSN=kafka:9092"
       - "AUTH_HOST=http://auth"
+      - "TIMEZONE=${TIMEZONE}"
       - "TIMER_SPEED=${TIMER_SPEED}"
       - "TIMER_BEGIN=${TIMER_BEGIN}"
+      - "WAIT_SATIS=1"
+      - "WAIT_AUTH=1"
     depends_on:
       - auth
       - kafka

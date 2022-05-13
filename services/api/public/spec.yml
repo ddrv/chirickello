@@ -133,6 +133,33 @@ paths:
           $ref: '#/components/responses/forbidden'
         500:
           $ref: '#/components/responses/serverError'
+  /accounting/top-management-profit:
+    get:
+      operationId: getTopManagementProfit
+      security:
+        - oauth2: [accounting]
+      tags:
+        - accounting
+      parameters:
+        - in: query
+          name: date
+          description: date
+          schema:
+            type: string
+            format: date
+      responses:
+        200:
+          description: Top Management Daily Profit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/topManagementProfit'
+        401:
+          $ref: '#/components/responses/needAuthorization'
+        403:
+          $ref: '#/components/responses/forbidden'
+        422:
+          $ref: '#/components/responses/formErrors'
 components:
   securitySchemes:
     oauth2:
@@ -143,6 +170,7 @@ components:
           tokenUrl: http://localhost:8089/oauth/v2/token
           scopes:
             tasks: Manage tasks
+            accounting: Accounting information
             analytics: View Analytics
   parameters:
     paginator:
@@ -271,6 +299,15 @@ components:
       allOf:
         - "$ref": '#/components/schemas/taskList'
         - "$ref": '#/components/schemas/pager'
+    topManagementProfit:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        profilt:
+          type: integer
+      required: [date, profilt]
     formError:
       type: object
       properties:

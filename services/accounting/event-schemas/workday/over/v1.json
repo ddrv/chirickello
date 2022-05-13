@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "workday.over.v1",
+  "description": "json schema for workday over event (version 1)",
+  "type": "object",
+  "properties": {
+    "event": {
+      "type": "string",
+      "enum": ["workday.over"]
+    },
+    "version": {
+      "type": "integer",
+      "enum": [1],
+      "default": 1
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "time": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["time"]
+    }
+  },
+  "required": ["event", "data"]
+}

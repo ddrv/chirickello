@@ -7,15 +7,19 @@ namespace Chirickello\TaskTracker\Transformer;
 use Chirickello\TaskTracker\Entity\Task;
 use Chirickello\TaskTracker\Entity\User;
 use Chirickello\TaskTracker\Repo\UserRepo\UserRepo;
+use DateTimeZone;
 
 class TaskTransformer
 {
     private UserRepo $userRepo;
+    private DateTimeZone $timezone;
 
     public function __construct(
-        UserRepo $userRepo
+        UserRepo $userRepo,
+        string $timezone = 'UTC'
     ) {
         $this->userRepo = $userRepo;
+        $this->timezone = new DateTimeZone($timezone);
     }
 
     /**
@@ -48,7 +52,7 @@ class TaskTransformer
                 'assignedTo' => $this->transformUser($users[$task->getAssignedTo()]),
                 'title' => $task->getTitle(),
                 'status' => $task->isCompleted() ? 'completed' : 'progress',
-                'createdAt' => $task->getCreatedAt()->format('Y-m-d\TH:i:s.vP'),
+                'createdAt' => $task->getCreatedAt()->setTimezone($this->timezone)->format('Y-m-d\TH:i:s.vP'),
             ];
             $result[] = $taskView;
         }

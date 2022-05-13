@@ -1,0 +1,47 @@
+[program:user-stream]
+command=php APP_ROOT/bin/consumer.php user-stream
+autostart=true
+autorestart=true
+startretries=1000
+
+[program:roles]
+command=php APP_ROOT/bin/consumer.php roles
+autostart=true
+autorestart=true
+startretries=1000
+
+[program:task-stream]
+command=php APP_ROOT/bin/consumer.php task-stream
+autostart=true
+autorestart=true
+startretries=1000
+
+[program:task-workflow]
+command=php APP_ROOT/bin/consumer.php task-workflow
+autostart=true
+autorestart=true
+startretries=1000
+
+[program:schedule-consumer]
+command=php APP_ROOT/bin/consumer.php schedule
+autostart=true
+autorestart=true
+startretries=1000
+
+[program:finances]
+command=php APP_ROOT/bin/consumer.php finances
+autostart=true
+autorestart=true
+startretries=1000
+
+[program:failed]
+command=php APP_ROOT/bin/consumer.php failed
+autostart=true
+autorestart=true
+startretries=1000
+
+[program:schedule-worker]
+command=php APP_ROOT/bin/schedule.php
+autostart=true
+autorestart=true
+startretries=1000

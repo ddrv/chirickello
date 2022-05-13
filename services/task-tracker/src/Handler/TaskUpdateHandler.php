@@ -87,8 +87,7 @@ class TaskUpdateHandler implements RequestHandlerInterface
         $this->taskRepo->save($task);
         $event = new TaskCompleted(
             $task->getId(),
-            $task->getAssignedTo(),
-            $task->getTitle(),
+            $userId,
             $this->timer->now()
         );
         $this->eventDispatcher->dispatch($event);

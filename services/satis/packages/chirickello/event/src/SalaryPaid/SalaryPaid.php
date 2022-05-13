@@ -11,12 +11,12 @@ use DateTimeZone;
 class SalaryPaid extends BaseEvent
 {
     private string $userId;
-    private float $amount;
+    private int $amount;
     private DateTimeImmutable $paymentTime;
 
     public function __construct(
-        string            $userId,
-        float             $amount,
+        string $userId,
+        int $amount,
         DateTimeImmutable $paymentAssignTime
     ) {
         $this->userId = $userId;
@@ -34,7 +34,7 @@ class SalaryPaid extends BaseEvent
         return $this->userId;
     }
 
-    public function getAmount(): float
+    public function getAmount(): int
     {
         return $this->amount;
     }

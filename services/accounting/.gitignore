@@ -1,2 +1,4 @@
 vendor/
-/.rr.yaml
+var/data/*
+.rr.yaml
+!var/data/.gitkeep
